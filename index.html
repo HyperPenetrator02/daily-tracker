@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatMaxer: Life Gamification Dashboard</title>
+    <meta name="description" content="Gamify your daily habits with StatMaxer - Track progress, earn XP, and level up your life with a cyberpunk-themed dashboard.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">StatMaxer</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="daily" id="nav-daily">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Daily Stats</span>
+                </button>
+                <button class="nav-item" data-view="skills" id="nav-skills">
+                    <span class="nav-icon">🌳</span>
+                    <span class="nav-label">Skill Trees</span>
+                </button>
+                <button class="nav-item" data-view="settings" id="nav-settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="version-tag">v1.0.0</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Player Level -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 class="player-title">
+                        <span class="player-icon">👤</span>
+                        <span class="player-name">Player_One</span>
+                    </h1>
+                    <div class="player-stats">
+                        <span class="stat-badge">
+                            <span class="stat-icon">🔥</span>
+                            <span class="stat-value" id="streak-count">0</span>
+                            <span class="stat-label">Day Streak</span>
+                        </span>
+                        <span class="stat-badge">
+                            <span class="stat-icon">✨</span>
+                            <span class="stat-value" id="total-xp">0</span>
+                            <span class="stat-label">Total XP</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="level-container">
+                        <div class="level-info">
+                            <span class="level-label">OVERALL LEVEL</span>
+                            <span class="level-number" id="player-level">1</span>
+                        </div>
+                        <div class="level-bar-container">
+                            <div class="level-bar" id="level-bar">
+                                <div class="level-bar-fill" id="level-bar-fill"></div>
+                                <div class="level-bar-glow"></div>
+                            </div>
+                            <span class="level-percentage" id="level-percentage">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tracking Matrix -->
+            <section class="tracking-section" id="daily-view">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">📅</span>
+                        <span id="current-month">January 2026</span>
+                    </h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" id="add-habit-btn">
+                            <span class="btn-icon">+</span>
+                            <span class="btn-text">Add Habit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Day Headers -->
+                <div class="tracking-matrix">
+                    <div class="matrix-header">
+                        <div class="habit-info-header">HABIT</div>
+                        <div class="days-header" id="days-header">
+                            <!-- Days will be rendered here -->
+                        </div>
+                        <div class="stat-header">PROGRESS</div>
+                    </div>
+
+                    <!-- Habit Rows Container -->
+                    <div class="habits-container" id="habits-container">
+                        <!-- Habit rows will be rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">🎮</div>
+                    <h3 class="empty-title">No Habits Yet</h3>
+                    <p class="empty-text">Start your journey by adding your first habit to track!</p>
+                    <button class="btn btn-primary btn-large" id="empty-add-btn">
+                        <span class="btn-icon">+</span>
+                        <span class="btn-text">Create First Habit</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Skills View (Hidden by default) -->
+            <section class="skills-section hidden" id="skills-view">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">🌳</div>
+                    <h2>Skill Trees</h2>
+                    <p>Coming Soon...</p>
+                </div>
+            </section>
+
+            <!-- Settings View (Hidden by default) -->
+            <section class="settings-section hidden" id="settings-view">
+                <div class="settings-content">
+                    <h2 class="section-title">
+                        <span class="title-icon">⚙️</span>
+                        Settings
+                    </h2>
+                    <div class="settings-group">
+                        <h3>Player Profile</h3>
+                        <div class="setting-item">
+                            <label for="player-name-input">Player Name</label>
+                            <input type="text" id="player-name-input" class="input-field" placeholder="Enter your name">
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Data Management</h3>
+                        <div class="setting-item">
+                            <button class="btn btn-danger" id="reset-data-btn">
+                                <span class="btn-icon">🗑️</span>
+                                <span class="btn-text">Reset All Data</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Habit Modal -->
+    <div class="modal-overlay hidden" id="add-habit-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="title-icon">✨</span>
+                    New Habit
+                </h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <form class="modal-body" id="habit-form">
+                <div class="form-group">
+                    <label for="habit-name">Habit Name</label>
+                    <input type="text" id="habit-name" class="input-field" placeholder="e.g., Gym Workout" required>
+                </div>
+                <div class="form-group">
+                    <label for="habit-icon">Icon</label>
+                    <div class="icon-picker" id="icon-picker">
+                        <button type="button" class="icon-option selected" data-icon="🏋️">🏋️</button>
+                        <button type="button" class="icon-option" data-icon="📚">📚</button>
+                        <button type="button" class="icon-option" data-icon="🧘">🧘</button>
+                        <button type="button" class="icon-option" data-icon="💧">💧</button>
+                        <button type="button" class="icon-option" data-icon="🏃">🏃</button>
+                        <button type="button" class="icon-option" data-icon="💤">💤</button>
+                        <button type="button" class="icon-option" data-icon="🥗">🥗</button>
+                        <button type="button" class="icon-option" data-icon="💻">💻</button>
+                        <button type="button" class="icon-option" data-icon="🎨">🎨</button>
+                        <button type="button" class="icon-option" data-icon="🎵">🎵</button>
+                        <button type="button" class="icon-option" data-icon="📝">📝</button>
+                        <button type="button" class="icon-option" data-icon="🌅">🌅</button>
+                    </div>
+                    <input type="hidden" id="habit-icon" value="🏋️">
+                </div>
+                <div class="form-group">
+                    <label for="habit-goal">Monthly Goal (Days)</label>
+                    <input type="number" id="habit-goal" class="input-field" value="30" min="1" max="31" required>
+                    <span class="form-hint">Target days to complete this month</span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-habit">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">✓</span>
+                        <span class="btn-text">Create Habit</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay hidden" id="delete-modal">
+        <div class="modal modal-small">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="title-icon">⚠️</span>
+                    Delete Habit
+                </h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="delete-habit-name"></span>"?</p>
+                <p class="warning-text">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
+                <button class="btn btn-danger" id="confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
