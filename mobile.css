@@ -45,7 +45,8 @@ html {
         left: -240px;
         top: 0;
         height: 100vh;
-        width: 240px;
+        width: 200px;
+        /* Reduced from 240px */
         z-index: 1000;
         transition: left var(--transition-normal);
         box-shadow: var(--shadow-lg);
@@ -59,15 +60,19 @@ html {
     .mobile-menu-btn {
         display: block;
         position: fixed;
-        top: var(--spacing-md);
-        left: var(--spacing-md);
+        top: 0.75rem;
+        /* Reduced */
+        left: 0.75rem;
+        /* Reduced */
         z-index: 999;
         background: var(--accent-primary);
         color: white;
         border: none;
         border-radius: var(--radius-md);
-        padding: var(--spacing-sm) var(--spacing-md);
-        font-size: 1.5rem;
+        padding: 0.5rem 0.75rem;
+        /* Reduced */
+        font-size: 1.25rem;
+        /* Reduced */
         cursor: pointer;
         box-shadow: var(--shadow-md);
         transition: all var(--transition-fast);
@@ -97,16 +102,19 @@ html {
     /* Adjust main content */
     .main-content {
         margin-left: 0;
-        padding: var(--spacing-md);
-        padding-top: calc(var(--spacing-2xl) + 44px);
-        /* Space for mobile menu button */
+        padding: 0.75rem;
+        /* Reduced */
+        padding-top: 3.5rem;
+        /* Reduced - space for mobile menu button */
     }
 
     /* Header adjustments */
     .header {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
         flex-direction: column;
-        gap: var(--spacing-md);
+        gap: 0.75rem;
+        /* Reduced */
     }
 
     .player-info {
@@ -114,100 +122,257 @@ html {
         justify-content: center;
     }
 
+    .player-name {
+        font-size: 1rem;
+        /* Reduced */
+    }
+
     .player-stats {
         width: 100%;
         flex-wrap: wrap;
         justify-content: center;
+        gap: 0.5rem;
+        /* Reduced */
     }
 
     .stat-item {
         flex: 1 1 auto;
-        min-width: 100px;
+        min-width: 80px;
+        /* Reduced */
+        padding: 0.5rem;
+        /* Reduced */
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        /* Reduced */
+    }
+
+    .stat-value {
+        font-size: 1rem;
+        /* Reduced */
+    }
+
+    /* Level bar */
+    .level-bar {
+        height: 6px;
+        /* Reduced */
     }
 
     /* Quest cards - single column */
     .quest-cards-container {
         grid-template-columns: 1fr;
-        gap: var(--spacing-md);
+        gap: 0.75rem;
+        /* Reduced */
     }
 
     .quest-card {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
     }
 
     .quest-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-sm);
+        flex-direction: row;
+        /* Keep horizontal */
+        align-items: center;
+        gap: 0.75rem;
+        /* Reduced */
     }
 
     .quest-icon-large {
         font-size: 2rem;
+        /* Reduced */
+        min-width: 2rem;
+    }
+
+    .quest-name {
+        font-size: 1rem;
+        /* Reduced */
+    }
+
+    .quest-category {
+        font-size: 0.75rem;
+        /* Reduced */
+    }
+
+    .quest-xp-badge {
+        font-size: 0.75rem;
+        /* Reduced */
+        padding: 0.25rem 0.5rem;
+        /* Reduced */
+    }
+
+    .quest-check-btn {
+        padding: 0.75rem;
+        /* Reduced */
+        font-size: 0.875rem;
+        /* Reduced */
+        min-height: 40px;
+        /* Reduced */
+    }
+
+    .quest-alarm-toggle {
+        padding: 0.5rem;
+        /* Reduced */
+        font-size: 0.75rem;
+        /* Reduced */
+    }
+
+    .hardcore-badge {
+        font-size: 0.7rem;
+        /* Reduced */
+        padding: 0.25rem 0.5rem;
+        /* Reduced */
     }
 
     /* Matrix view improvements */
     .matrix-header {
-        grid-template-columns: 120px 1fr 80px;
-        font-size: 0.75rem;
+        grid-template-columns: 100px 1fr 70px;
+        /* Reduced */
+        font-size: 0.7rem;
+        /* Reduced */
+        padding: 0.5rem;
+        /* Reduced */
     }
 
     .habit-row {
-        grid-template-columns: 120px 1fr 80px;
+        grid-template-columns: 100px 1fr 70px;
+        /* Reduced */
+        padding: 0.5rem 0;
+        /* Reduced */
     }
 
     .habit-info {
-        padding: var(--spacing-sm);
+        padding: 0.5rem;
+        /* Reduced */
+    }
+
+    .habit-icon {
+        font-size: 1.25rem;
+        /* Reduced */
+        min-width: 1.25rem;
     }
 
     .habit-name {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
+        /* Reduced */
     }
 
     .habit-goal {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        /* Reduced */
     }
 
     .day-label {
-        font-size: 0.75rem;
-        min-width: 32px;
+        font-size: 0.7rem;
+        /* Reduced */
+        min-width: 28px;
+        /* Reduced */
+        padding: 0.25rem;
+        /* Reduced */
     }
 
     .day-checkbox {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        /* Reduced */
+        height: 28px;
+        /* Reduced */
+    }
+
+    .habit-delete {
+        font-size: 1.25rem;
+        /* Reduced */
+        padding: 0.25rem;
+        /* Reduced */
     }
 
     /* Character view */
     .player-card {
         flex-direction: column;
         text-align: center;
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
+        gap: 0.75rem;
+        /* Reduced */
     }
 
     .char-level-badge {
         font-size: 2rem;
+        /* Reduced */
+        width: 3rem;
+        /* Reduced */
+        height: 3rem;
+        /* Reduced */
+    }
+
+    .char-player-name {
+        font-size: 1.25rem;
+        /* Reduced */
+    }
+
+    .xp-section {
+        padding: 0.75rem;
+        /* Reduced */
+    }
+
+    .xp-label,
+    .xp-value {
+        font-size: 0.75rem;
+        /* Reduced */
+    }
+
+    .xp-bar-container {
+        height: 8px;
+        /* Reduced */
     }
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-sm);
+        gap: 0.5rem;
+        /* Reduced */
     }
 
     .stat-card {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
+    }
+
+    .stat-card-icon {
+        font-size: 1.5rem;
+        /* Reduced */
     }
 
     .stat-card-value {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+        /* Reduced */
+    }
+
+    .stat-card-label {
+        font-size: 0.7rem;
+        /* Reduced */
     }
 
     .radar-charts {
         grid-template-columns: 1fr;
-        gap: var(--spacing-lg);
+        gap: 0.75rem;
+        /* Reduced */
     }
 
     .radar-chart-card {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
+    }
+
+    .chart-header {
+        font-size: 0.875rem;
+        /* Reduced */
+        margin-bottom: 0.5rem;
+        /* Reduced */
+    }
+
+    .chart-value {
+        font-size: 1.25rem;
+        /* Reduced */
     }
 
     /* Modal improvements */
@@ -216,45 +381,106 @@ html {
         max-width: 500px;
         max-height: 90vh;
         overflow-y: auto;
-        margin: var(--spacing-md);
+        margin: 0.75rem;
+        /* Reduced */
     }
 
     .modal-header {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        /* Reduced */
+    }
+
+    .modal-close {
+        font-size: 1.5rem;
+        /* Reduced */
     }
 
     .modal-body {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
     }
 
     .form-group {
-        margin-bottom: var(--spacing-md);
+        margin-bottom: 0.75rem;
+        /* Reduced */
+    }
+
+    .form-label {
+        font-size: 0.8rem;
+        /* Reduced */
+        margin-bottom: 0.25rem;
+        /* Reduced */
+    }
+
+    .form-input,
+    .form-select {
+        padding: 0.5rem;
+        /* Reduced */
+        font-size: 0.875rem;
+        /* Reduced */
     }
 
     /* Icon picker - better mobile layout */
     .icon-picker {
-        grid-template-columns: repeat(5, 1fr);
-        gap: var(--spacing-xs);
+        grid-template-columns: repeat(6, 1fr);
+        /* More columns */
+        gap: 0.25rem;
+        /* Reduced */
     }
 
     .icon-option {
-        font-size: 1.5rem;
-        padding: var(--spacing-sm);
+        font-size: 1.25rem;
+        /* Reduced */
+        padding: 0.5rem;
+        /* Reduced */
+        min-height: 40px;
+        /* Reduced */
+        min-width: 40px;
+        /* Reduced */
     }
 
     /* Settings */
     .settings-section {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Reduced */
+    }
+
+    .settings-group {
+        margin-bottom: 0.75rem;
+        /* Reduced */
     }
 
     /* Buttons */
     .btn {
-        padding: var(--spacing-md);
+        padding: 0.75rem 1rem;
+        /* Reduced */
         font-size: 0.875rem;
+        /* Reduced */
+        min-height: 40px;
+        /* Reduced */
     }
 
     .btn-icon {
+        font-size: 1rem;
+        /* Reduced */
+    }
+
+    /* Section headers */
+    .section-title {
         font-size: 1.25rem;
+        /* Reduced */
+    }
+
+    .section-header {
+        padding: 0.75rem;
+        /* Reduced */
+        gap: 0.75rem;
+        /* Reduced */
     }
 }
 
@@ -263,49 +489,196 @@ html {
 
     /* Even more compact */
     .main-content {
-        padding: var(--spacing-sm);
-        padding-top: calc(var(--spacing-xl) + 44px);
+        padding: 0.5rem;
+        /* Further reduced */
+        padding-top: 3rem;
+        /* Further reduced */
+    }
+
+    /* Header */
+    .header {
+        padding: 0.5rem;
+        /* Further reduced */
+    }
+
+    .player-name {
+        font-size: 0.9rem;
+        /* Further reduced */
+    }
+
+    .stat-item {
+        min-width: 70px;
+        /* Further reduced */
+        padding: 0.4rem;
+        /* Further reduced */
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        /* Further reduced */
+    }
+
+    .stat-value {
+        font-size: 0.9rem;
+        /* Further reduced */
     }
 
     /* Single column stats */
     .stats-grid {
         grid-template-columns: 1fr;
+        gap: 0.5rem;
+        /* Further reduced */
+    }
+
+    /* Quest cards */
+    .quest-card {
+        padding: 0.6rem;
+        /* Further reduced */
+    }
+
+    .quest-icon-large {
+        font-size: 1.75rem;
+        /* Further reduced */
+    }
+
+    .quest-name {
+        font-size: 0.9rem;
+        /* Further reduced */
+    }
+
+    .quest-category {
+        font-size: 0.7rem;
+        /* Further reduced */
+    }
+
+    .quest-xp-badge {
+        font-size: 0.7rem;
+        /* Further reduced */
+        padding: 0.2rem 0.4rem;
+        /* Further reduced */
+    }
+
+    .quest-check-btn {
+        padding: 0.6rem;
+        /* Further reduced */
+        font-size: 0.8rem;
+        /* Further reduced */
+        min-height: 38px;
+        /* Further reduced */
     }
 
     /* Smaller text */
     .section-title {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
+        /* Further reduced */
+    }
+
+    .section-header {
+        padding: 0.6rem;
+        /* Further reduced */
     }
 
     /* Matrix - ultra compact */
     .matrix-header {
-        grid-template-columns: 100px 1fr 70px;
+        grid-template-columns: 90px 1fr 60px;
+        /* Further reduced */
+        font-size: 0.65rem;
+        /* Further reduced */
+        padding: 0.4rem;
+        /* Further reduced */
     }
 
     .habit-row {
-        grid-template-columns: 100px 1fr 70px;
+        grid-template-columns: 90px 1fr 60px;
+        /* Further reduced */
+        padding: 0.4rem 0;
+        /* Further reduced */
+    }
+
+    .habit-info {
+        padding: 0.4rem;
+        /* Further reduced */
+    }
+
+    .habit-icon {
+        font-size: 1.1rem;
+        /* Further reduced */
+    }
+
+    .habit-name {
+        font-size: 0.75rem;
+        /* Further reduced */
+    }
+
+    .habit-goal {
+        font-size: 0.65rem;
+        /* Further reduced */
     }
 
     .day-label,
     .day-checkbox {
-        min-width: 28px;
-        width: 28px;
-        height: 28px;
-        font-size: 0.7rem;
+        min-width: 26px;
+        /* Further reduced */
+        width: 26px;
+        /* Further reduced */
+        height: 26px;
+        /* Further reduced */
+        font-size: 0.65rem;
+        /* Further reduced */
     }
 
-    /* Quest cards */
-    .quest-name {
-        font-size: 1rem;
+    /* Character view */
+    .char-level-badge {
+        font-size: 1.75rem;
+        /* Further reduced */
+        width: 2.75rem;
+        /* Further reduced */
+        height: 2.75rem;
+        /* Further reduced */
     }
 
-    .quest-category {
-        font-size: 0.75rem;
+    .char-player-name {
+        font-size: 1.1rem;
+        /* Further reduced */
+    }
+
+    .stat-card {
+        padding: 0.6rem;
+        /* Further reduced */
+    }
+
+    .stat-card-icon {
+        font-size: 1.3rem;
+        /* Further reduced */
+    }
+
+    .stat-card-value {
+        font-size: 1.1rem;
+        /* Further reduced */
+    }
+
+    .stat-card-label {
+        font-size: 0.65rem;
+        /* Further reduced */
     }
 
     /* Icon picker - 4 columns on very small screens */
     .icon-picker {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
+        /* Adjusted */
+        gap: 0.2rem;
+        /* Further reduced */
+    }
+
+    .icon-option {
+        font-size: 1.1rem;
+        /* Further reduced */
+        padding: 0.4rem;
+        /* Further reduced */
+        min-height: 38px;
+        /* Further reduced */
+        min-width: 38px;
+        /* Further reduced */
     }
 
     /* Form inputs */
@@ -316,6 +689,40 @@ html {
     textarea {
         font-size: 16px;
         /* Prevents zoom on iOS */
+        padding: 0.5rem;
+        /* Further reduced */
+    }
+
+    .form-label {
+        font-size: 0.75rem;
+        /* Further reduced */
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.6rem 0.8rem;
+        /* Further reduced */
+        font-size: 0.8rem;
+        /* Further reduced */
+        min-height: 38px;
+        /* Further reduced */
+    }
+
+    /* Modal */
+    .modal-content {
+        margin: 0.5rem;
+        /* Further reduced */
+    }
+
+    .modal-header,
+    .modal-body {
+        padding: 0.6rem;
+        /* Further reduced */
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        /* Further reduced */
     }
 }
 
