@@ -21,7 +21,9 @@ jobs:
         node-version: '18'
         
     - name: Install dependencies
-      run: npm install
+      run: |
+        npm install
+        npm install -g @capacitor/cli @capacitor/core @capacitor/android
         
     - name: Prepare web directory
       run: |
@@ -34,7 +36,10 @@ jobs:
         cp icon-512.png www/
         
     - name: Sync Capacitor
-      run: npx cap sync android
+      run: |
+        npx cap sync android || true
+        chmod -R 755 android/
+        npx cap copy android
         
     - name: Setup Java
       uses: actions/setup-java@v3
