@@ -940,6 +940,68 @@ document.addEventListener('DOMContentLoaded', () => {
         uiManager
     };
 
+    // === Mobile Menu Functionality ===
+    const initMobileMenu = () => {
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        // Show mobile menu button on small screens
+        const checkMobileView = () => {
+            if (window.innerWidth <= 768) {
+                mobileMenuBtn.style.display = 'block';
+            } else {
+                mobileMenuBtn.style.display = 'none';
+                sidebar.classList.remove('mobile-open');
+                mobileOverlay.classList.remove('active');
+            }
+        };
+
+        // Toggle mobile menu
+        const toggleMobileMenu = () => {
+            sidebar.classList.toggle('mobile-open');
+            mobileOverlay.classList.toggle('active');
+        };
+
+        // Close mobile menu
+        const closeMobileMenu = () => {
+            sidebar.classList.remove('mobile-open');
+            mobileOverlay.classList.remove('active');
+        };
+
+        // Event listeners
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+
+        // Close menu when clicking nav items on mobile
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeMobileMenu();
+                }
+            });
+        });
+
+        // Check on load and resize
+        checkMobileView();
+        window.addEventListener('resize', checkMobileView);
+
+        // Prevent body scroll when menu is open
+        const preventScroll = () => {
+            if (sidebar.classList.contains('mobile-open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        };
+
+        sidebar.addEventListener('transitionend', preventScroll);
+    };
+
+    // Initialize mobile menu
+    initMobileMenu();
+
     console.log('%c⚡ StatMaxer RPG OS Initialized', 'color: #3A86FF; font-size: 16px; font-weight: bold;');
     console.log('%cLevel up your life! 🎮', 'color: #06FFA5; font-size: 12px;');
 });

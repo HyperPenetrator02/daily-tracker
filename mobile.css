@@ -1,0 +1,462 @@
+/* ========================================
+   MOBILE-FRIENDLY ENHANCEMENTS
+   ======================================== */
+
+/* === Mobile-First Improvements === */
+
+/* Better touch targets */
+.btn,
+.nav-item,
+.quest-check-btn,
+.day-checkbox,
+.icon-option {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Prevent text selection on interactive elements */
+.btn,
+.nav-item,
+.quest-check-btn,
+.day-checkbox {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better mobile scrolling */
+.matrix-scroll,
+.habit-days {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* === Mobile Navigation === */
+@media (max-width: 768px) {
+
+    /* Hide sidebar by default on mobile */
+    .sidebar {
+        position: fixed;
+        left: -240px;
+        top: 0;
+        height: 100vh;
+        width: 240px;
+        z-index: 1000;
+        transition: left var(--transition-normal);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar.mobile-open {
+        left: 0;
+    }
+
+    /* Mobile menu button */
+    .mobile-menu-btn {
+        display: block;
+        position: fixed;
+        top: var(--spacing-md);
+        left: var(--spacing-md);
+        z-index: 999;
+        background: var(--accent-primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-fast);
+    }
+
+    .mobile-menu-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Overlay for sidebar */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        backdrop-filter: blur(4px);
+    }
+
+    .mobile-overlay.active {
+        display: block;
+    }
+
+    /* Adjust main content */
+    .main-content {
+        margin-left: 0;
+        padding: var(--spacing-md);
+        padding-top: calc(var(--spacing-2xl) + 44px);
+        /* Space for mobile menu button */
+    }
+
+    /* Header adjustments */
+    .header {
+        padding: var(--spacing-md);
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .player-info {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .player-stats {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .stat-item {
+        flex: 1 1 auto;
+        min-width: 100px;
+    }
+
+    /* Quest cards - single column */
+    .quest-cards-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .quest-card {
+        padding: var(--spacing-md);
+    }
+
+    .quest-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .quest-icon-large {
+        font-size: 2rem;
+    }
+
+    /* Matrix view improvements */
+    .matrix-header {
+        grid-template-columns: 120px 1fr 80px;
+        font-size: 0.75rem;
+    }
+
+    .habit-row {
+        grid-template-columns: 120px 1fr 80px;
+    }
+
+    .habit-info {
+        padding: var(--spacing-sm);
+    }
+
+    .habit-name {
+        font-size: 0.875rem;
+    }
+
+    .habit-goal {
+        font-size: 0.75rem;
+    }
+
+    .day-label {
+        font-size: 0.75rem;
+        min-width: 32px;
+    }
+
+    .day-checkbox {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Character view */
+    .player-card {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--spacing-md);
+    }
+
+    .char-level-badge {
+        font-size: 2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+
+    .stat-card {
+        padding: var(--spacing-md);
+    }
+
+    .stat-card-value {
+        font-size: 1.5rem;
+    }
+
+    .radar-charts {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .radar-chart-card {
+        padding: var(--spacing-md);
+    }
+
+    /* Modal improvements */
+    .modal-content {
+        width: 95%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        margin: var(--spacing-md);
+    }
+
+    .modal-header {
+        padding: var(--spacing-md);
+    }
+
+    .modal-body {
+        padding: var(--spacing-md);
+    }
+
+    .form-group {
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Icon picker - better mobile layout */
+    .icon-picker {
+        grid-template-columns: repeat(5, 1fr);
+        gap: var(--spacing-xs);
+    }
+
+    .icon-option {
+        font-size: 1.5rem;
+        padding: var(--spacing-sm);
+    }
+
+    /* Settings */
+    .settings-section {
+        padding: var(--spacing-md);
+    }
+
+    /* Buttons */
+    .btn {
+        padding: var(--spacing-md);
+        font-size: 0.875rem;
+    }
+
+    .btn-icon {
+        font-size: 1.25rem;
+    }
+}
+
+/* === Extra Small Devices (< 480px) === */
+@media (max-width: 480px) {
+
+    /* Even more compact */
+    .main-content {
+        padding: var(--spacing-sm);
+        padding-top: calc(var(--spacing-xl) + 44px);
+    }
+
+    /* Single column stats */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Smaller text */
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    /* Matrix - ultra compact */
+    .matrix-header {
+        grid-template-columns: 100px 1fr 70px;
+    }
+
+    .habit-row {
+        grid-template-columns: 100px 1fr 70px;
+    }
+
+    .day-label,
+    .day-checkbox {
+        min-width: 28px;
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+
+    /* Quest cards */
+    .quest-name {
+        font-size: 1rem;
+    }
+
+    .quest-category {
+        font-size: 0.75rem;
+    }
+
+    /* Icon picker - 4 columns on very small screens */
+    .icon-picker {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Form inputs */
+    input[type="text"],
+    input[type="number"],
+    input[type="time"],
+    select,
+    textarea {
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+}
+
+/* === Landscape Mobile === */
+@media (max-width: 896px) and (orientation: landscape) {
+    .main-content {
+        padding-top: var(--spacing-lg);
+    }
+
+    .header {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .modal-content {
+        max-height: 80vh;
+    }
+}
+
+/* === Touch-specific improvements === */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Larger touch targets */
+    .btn,
+    .nav-item,
+    .day-checkbox,
+    .icon-option {
+        min-height: 48px;
+        min-width: 48px;
+    }
+
+    /* Remove hover effects on touch devices */
+    .btn:hover,
+    .nav-item:hover,
+    .quest-check-btn:hover {
+        transform: none;
+    }
+
+    /* Add active states instead */
+    .btn:active,
+    .nav-item:active,
+    .quest-check-btn:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+
+    /* Better scrollbar for touch */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-tertiary);
+    }
+}
+
+/* === iOS-specific fixes === */
+@supports (-webkit-touch-callout: none) {
+
+    /* Fix iOS safe area */
+    .app-container {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .sidebar {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Prevent iOS zoom on input focus */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    /* Fix iOS button styling */
+    button,
+    .btn {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
+
+/* === Android-specific fixes === */
+@media (prefers-color-scheme: dark) {
+
+    /* Ensure dark theme on Android */
+    meta[name="theme-color"] {
+        content: #121212;
+    }
+}
+
+/* === Accessibility improvements === */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* === High contrast mode === */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+
+    .day-checkbox {
+        border-width: 2px;
+    }
+
+    .nav-item.active {
+        border-left-width: 4px;
+    }
+}
+
+/* === Print styles === */
+@media print {
+
+    .sidebar,
+    .mobile-menu-btn,
+    .btn,
+    .modal {
+        display: none !important;
+    }
+
+    .main-content {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+}
