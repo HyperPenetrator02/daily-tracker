@@ -1,0 +1,77 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm install -g @capacitor/cli @capacitor/core @capacitor/android
+        
+    - name: Initialize Capacitor
+      run: |
+        npx cap init "StatMaxer RPG OS" "com.statmaxer.rpgos" --web-dir=.
+        
+    - name: Add Android platform
+      run: npx cap add android
+      
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: Build Android APK
+      run: |
+        cd android
+        ./gradlew assembleRelease
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: statmaxer-rpg-os.apk
+        path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+        
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: StatMaxer RPG OS v${{ github.run_number }}
+        body: |
+          ## StatMaxer RPG OS - Android Release
+          
+          ### Installation Instructions
+          1. Download the APK file below
+          2. Enable "Unknown Sources" in Android Settings
+          3. Install the APK
+          4. Start leveling up your life! 🎮
+          
+          ### Features
+          - ⚔️ Quest Log with daily habit cards
+          - 📊 31-day stat matrix tracking
+          - 👤 Character profile with radar charts
+          - 💀 Hardcore alarm system
+          - ✨ XP & leveling system
+          - 🔥 Streak multipliers
+          
+          **Privacy:** 100% offline. No data collection. No ads.
+        files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>StatMaxer Icon Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #121212;
+            font-family: 'JetBrains Mono', monospace;
+            color: #E0E0E0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #3A86FF;
+            text-align: center;
+        }
+
+        .icon-preview {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .icon-box {
+            text-align: center;
+        }
+
+        canvas {
+            border: 2px solid #3A86FF;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(58, 134, 255, 0.5);
+        }
+
+        button {
+            background: #3A86FF;
+            color: #121212;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: #06FFA5;
+        }
+
+        .instructions {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>⚡ StatMaxer Icon Generator</h1>
+
+        <div class="icon-preview">
+            <div class="icon-box">
+                <h3>192x192</h3>
+                <canvas id="icon192" width="192" height="192"></canvas>
+                <br>
+                <button onclick="downloadIcon('icon192', 'icon-192.png')">Download 192x192</button>
+            </div>
+            <div class="icon-box">
+                <h3>512x512</h3>
+                <canvas id="icon512" width="512" height="512"></canvas>
+                <br>
+                <button onclick="downloadIcon('icon512', 'icon-512.png')">Download 512x512</button>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📝 Instructions:</h3>
+            <ol>
+                <li>Click the download buttons above to save the icons</li>
+                <li>Place the downloaded files in your project root directory</li>
+                <li>The icons will be used for PWA and Android app</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#121212';
+            ctx.fillRect(0, 0, size, size);
+
+            // Glow effect
+            const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+            gradient.addColorStop(0, 'rgba(58, 134, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(58, 134, 255, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Lightning bolt
+            ctx.fillStyle = '#3A86FF';
+            ctx.shadowColor = '#3A86FF';
+            ctx.shadowBlur = size * 0.1;
+
+            const scale = size / 192;
+            ctx.beginPath();
+            ctx.moveTo(96 * scale, 20 * scale);
+            ctx.lineTo(70 * scale, 90 * scale);
+            ctx.lineTo(100 * scale, 90 * scale);
+            ctx.lineTo(80 * scale, 172 * scale);
+            ctx.lineTo(130 * scale, 80 * scale);
+            ctx.lineTo(100 * scale, 80 * scale);
+            ctx.lineTo(120 * scale, 20 * scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Accent glow
+            ctx.strokeStyle = '#06FFA5';
+            ctx.lineWidth = 2 * scale;
+            ctx.shadowColor = '#06FFA5';
+            ctx.shadowBlur = size * 0.05;
+            ctx.stroke();
+        }
+
+        function downloadIcon(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Draw icons on load
+        drawIcon('icon192', 192);
+        drawIcon('icon512', 512);
+    </script>
+</body>
+
+</html>

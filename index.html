@@ -1,15 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StatMaxer: Life Gamification Dashboard</title>
-    <meta name="description" content="Gamify your daily habits with StatMaxer - Track progress, earn XP, and level up your life with a cyberpunk-themed dashboard.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#3A86FF">
+
+    <title>StatMaxer RPG OS - Level Up Your Life</title>
+    <meta name="description"
+        content="Level Up Your Life with StatMaxer RPG OS - Gamified habit tracker with hardcore alarms, XP system, and character progression.">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar Navigation -->
@@ -19,13 +39,17 @@
                 <span class="logo-text">StatMaxer</span>
             </div>
             <nav class="sidebar-nav">
-                <button class="nav-item active" data-view="daily" id="nav-daily">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-label">Daily Stats</span>
+                <button class="nav-item active" data-view="quests" id="nav-quests">
+                    <span class="nav-icon">⚔️</span>
+                    <span class="nav-label">Quest Log</span>
                 </button>
-                <button class="nav-item" data-view="skills" id="nav-skills">
-                    <span class="nav-icon">🌳</span>
-                    <span class="nav-label">Skill Trees</span>
+                <button class="nav-item" data-view="matrix" id="nav-matrix">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Stat Matrix</span>
+                </button>
+                <button class="nav-item" data-view="character" id="nav-character">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Character</span>
                 </button>
                 <button class="nav-item" data-view="settings" id="nav-settings">
                     <span class="nav-icon">⚙️</span>
@@ -76,11 +100,43 @@
                 </div>
             </header>
 
-            <!-- Tracking Matrix -->
-            <section class="tracking-section" id="daily-view">
+            <!-- VIEW 1: Quest Log (Daily Habit Cards) -->
+            <section class="quest-log-section" id="quests-view">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <span class="title-icon">📅</span>
+                        <span class="title-icon">⚔️</span>
+                        Daily Quests
+                    </h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" id="add-quest-btn">
+                            <span class="btn-icon">+</span>
+                            <span class="btn-text">New Quest</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quest Cards Container -->
+                <div class="quest-cards-container" id="quest-cards-container">
+                    <!-- Quest cards will be rendered dynamically -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state hidden" id="quests-empty-state">
+                    <div class="empty-icon">⚔️</div>
+                    <h3 class="empty-title">No Quests Yet</h3>
+                    <p class="empty-text">Create your first daily quest and start earning XP!</p>
+                    <button class="btn btn-primary btn-large" id="empty-quest-btn">
+                        <span class="btn-icon">+</span>
+                        <span class="btn-text">Create First Quest</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW 2: Stat Matrix (31-Column Grid) -->
+            <section class="matrix-section hidden" id="matrix-view">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">📊</span>
                         <span id="current-month">January 2026</span>
                     </h2>
                     <div class="section-actions">
@@ -91,12 +147,12 @@
                     </div>
                 </div>
 
-                <!-- Day Headers -->
+                <!-- 31-Column Tracking Matrix -->
                 <div class="tracking-matrix">
                     <div class="matrix-header">
                         <div class="habit-info-header">HABIT</div>
                         <div class="days-header" id="days-header">
-                            <!-- Days will be rendered here -->
+                            <!-- Days 1-31 will be rendered here -->
                         </div>
                         <div class="stat-header">PROGRESS</div>
                     </div>
@@ -108,27 +164,105 @@
                 </div>
 
                 <!-- Empty State -->
-                <div class="empty-state" id="empty-state">
-                    <div class="empty-icon">🎮</div>
-                    <h3 class="empty-title">No Habits Yet</h3>
-                    <p class="empty-text">Start your journey by adding your first habit to track!</p>
+                <div class="empty-state hidden" id="matrix-empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h3 class="empty-title">No Habits Tracked</h3>
+                    <p class="empty-text">Add habits to see your monthly progress matrix!</p>
                     <button class="btn btn-primary btn-large" id="empty-add-btn">
                         <span class="btn-icon">+</span>
-                        <span class="btn-text">Create First Habit</span>
+                        <span class="btn-text">Add First Habit</span>
                     </button>
                 </div>
             </section>
 
-            <!-- Skills View (Hidden by default) -->
-            <section class="skills-section hidden" id="skills-view">
-                <div class="coming-soon">
-                    <div class="coming-soon-icon">🌳</div>
-                    <h2>Skill Trees</h2>
-                    <p>Coming Soon...</p>
+            <!-- VIEW 3: Character Tab (Profile & Stats) -->
+            <section class="character-section hidden" id="character-view">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">👤</span>
+                        Character Profile
+                    </h2>
+                </div>
+
+                <div class="character-content">
+                    <!-- Player Card -->
+                    <div class="player-card">
+                        <div class="player-avatar">
+                            <span class="avatar-icon">👤</span>
+                            <div class="level-badge" id="char-level-badge">1</div>
+                        </div>
+                        <div class="player-info">
+                            <h3 class="player-name-display" id="char-player-name">Player_One</h3>
+                            <p class="player-title">Habit Warrior</p>
+                        </div>
+                    </div>
+
+                    <!-- Global XP Bar -->
+                    <div class="xp-section">
+                        <div class="xp-header">
+                            <span class="xp-label">GLOBAL XP</span>
+                            <span class="xp-value" id="char-xp-value">0 / 100</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-fill" id="char-xp-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-icon">🔥</div>
+                            <div class="stat-card-value" id="char-streak">0</div>
+                            <div class="stat-card-label">Day Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon">✅</div>
+                            <div class="stat-card-value" id="char-completed">0</div>
+                            <div class="stat-card-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon">📈</div>
+                            <div class="stat-card-value" id="char-total-quests">0</div>
+                            <div class="stat-card-label">Total Quests</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon">⚡</div>
+                            <div class="stat-card-value" id="char-multiplier">1.0x</div>
+                            <div class="stat-card-label">XP Multiplier</div>
+                        </div>
+                    </div>
+
+                    <!-- Radar Charts Section -->
+                    <div class="radar-charts-section">
+                        <h3 class="subsection-title">
+                            <span class="title-icon">📊</span>
+                            Attribute Analysis
+                        </h3>
+                        <div class="radar-charts-grid">
+                            <!-- Strength Chart -->
+                            <div class="radar-chart-container">
+                                <h4 class="chart-title">💪 Strength</h4>
+                                <canvas id="strength-radar" width="300" height="300"></canvas>
+                                <div class="chart-value" id="strength-value">0</div>
+                            </div>
+                            <!-- Intelligence Chart -->
+                            <div class="radar-chart-container">
+                                <h4 class="chart-title">🧠 Intelligence</h4>
+                                <canvas id="intelligence-radar" width="300" height="300"></canvas>
+                                <div class="chart-value" id="intelligence-value">0</div>
+                            </div>
+                            <!-- Discipline Chart -->
+                            <div class="radar-chart-container">
+                                <h4 class="chart-title">🎯 Discipline</h4>
+                                <canvas id="discipline-radar" width="300" height="300"></canvas>
+                                <div class="chart-value" id="discipline-value">0</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Settings View (Hidden by default) -->
+            <!-- Settings View -->
             <section class="settings-section hidden" id="settings-view">
                 <div class="settings-content">
                     <h2 class="section-title">
@@ -169,8 +303,18 @@
             <form class="modal-body" id="habit-form">
                 <div class="form-group">
                     <label for="habit-name">Habit Name</label>
-                    <input type="text" id="habit-name" class="input-field" placeholder="e.g., Gym Workout" required>
+                    <input type="text" id="habit-name" class="input-field" placeholder="e.g., Wake up 6AM" required>
                 </div>
+
+                <div class="form-group">
+                    <label for="habit-category">Category (Attribute)</label>
+                    <select id="habit-category" class="input-field" required>
+                        <option value="strength">💪 Strength (Gym, Stretching, Physical)</option>
+                        <option value="intelligence">🧠 Intelligence (Read, Study, Learn)</option>
+                        <option value="discipline">🎯 Discipline (Wake Early, Meditation, Skincare)</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="habit-icon">Icon</label>
                     <div class="icon-picker" id="icon-picker">
@@ -186,14 +330,43 @@
                         <button type="button" class="icon-option" data-icon="🎵">🎵</button>
                         <button type="button" class="icon-option" data-icon="📝">📝</button>
                         <button type="button" class="icon-option" data-icon="🌅">🌅</button>
+                        <button type="button" class="icon-option" data-icon="🌊">🌊</button>
+                        <button type="button" class="icon-option" data-icon="⏰">⏰</button>
+                        <button type="button" class="icon-option" data-icon="🎯">🎯</button>
+                        <button type="button" class="icon-option" data-icon="💪">💪</button>
                     </div>
                     <input type="hidden" id="habit-icon" value="🏋️">
                 </div>
+
+                <div class="form-group">
+                    <label for="habit-xp">XP Reward</label>
+                    <input type="number" id="habit-xp" class="input-field" value="10" min="1" max="100" required>
+                    <span class="form-hint">XP earned per completion (1-100)</span>
+                </div>
+
                 <div class="form-group">
                     <label for="habit-goal">Monthly Goal (Days)</label>
                     <input type="number" id="habit-goal" class="input-field" value="30" min="1" max="31" required>
                     <span class="form-hint">Target days to complete this month</span>
                 </div>
+
+                <div class="form-group">
+                    <label for="habit-alarm">Alarm Time (Optional)</label>
+                    <input type="time" id="habit-alarm" class="input-field">
+                    <span class="form-hint">Set a reminder for this habit</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="habit-hardcore" class="checkbox-input">
+                        <span class="checkbox-text">
+                            <span class="checkbox-icon">💀</span>
+                            <strong>Hardcore Alarm</strong> - Persistent vibration & high-priority alert
+                        </span>
+                    </label>
+                    <span class="form-hint warning-text">Snoozing deducts 5 XP!</span>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancel-habit">Cancel</button>
                     <button type="submit" class="btn btn-primary">
@@ -225,6 +398,23 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+
+    <!-- Chart.js for Radar Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Main Application Script -->
+    <script src="app-rpg.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+                    .catch(err => console.log('❌ Service Worker registration failed:', err));
+            });
+        }
+    </script>
 </body>
+
 </html>

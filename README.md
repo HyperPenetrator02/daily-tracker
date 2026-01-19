@@ -1,163 +1,362 @@
-# StatMaxer: Life Gamification Dashboard
+# ⚡ StatMaxer RPG OS - Level Up Your Life
 
-A cyberpunk-minimalist habit tracking dashboard that gamifies your daily routines with XP progression, visual stat bars, and a monthly tracking matrix.
+<div align="center">
 
-## 🎮 Features
+![StatMaxer Banner](https://img.shields.io/badge/StatMaxer-RPG_OS-3A86FF?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTUuMDkgOC4yNkwyMiA5LjI3TDE3IDEzLjE0TDE4LjE4IDIyTDEyIDE4LjI3TDUuODIgMjJMNyAxMy4xNEwyIDkuMjdMOC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjM0E4NkZGIi8+Cjwvc3ZnPgo=)
+![Version](https://img.shields.io/badge/version-1.0.0-06FFA5?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-FF006E?style=for-the-badge)
+![Privacy](https://img.shields.io/badge/privacy-100%25_Offline-00FFC2?style=for-the-badge)
 
-- **Habit Tracking**: Create custom habits with icons and monthly goals
-- **Daily Checkboxes**: Track completion for each day of the month with a horizontal scrolling carousel
-- **Real-time Progress**: Dynamic stat bars that fill as you complete tasks
-- **XP System**: Earn XP based on completion percentage `(TotalCompleted / GoalValue) * 100`
-- **Player Level**: Aggregated level bar showing overall progress across all habits
-- **Streak Counter**: Track your longest consecutive completion streak
-- **localStorage Persistence**: All data saved locally in your browser
-- **Cyberpunk Theme**: Dark mode with neon blue accents and smooth animations
-- **Responsive Design**: Works on desktop and mobile devices
+**A cyberpunk-themed RPG habit tracker that gamifies your life with XP, levels, hardcore alarms, and attribute progression.**
 
-## 🚀 Getting Started
+[🎮 Live Demo](https://hyperpenetrator02.github.io/daily-tracker/) • [📱 Download APK](https://github.com/HyperPenetrator02/daily-tracker/releases) • [📖 Installation Guide](INSTALLATION.md) • [🔒 Privacy Policy](PRIVACY_POLICY.md)
 
-### Quick Start
+</div>
 
-1. Open `index.html` in your web browser
-2. Click "Create First Habit" or the "+ Add Habit" button
-3. Fill in the habit details:
-   - **Name**: e.g., "Gym Workout"
-   - **Icon**: Choose from 12 preset emojis
+---
+
+## 🎯 Master Prompt Features
+
+StatMaxer RPG OS is a **mobile-first Progressive Web App** with Android APK support, featuring:
+
+### ⚔️ Three Core Views
+
+1. **Quest Log** - Daily habit cards with large icons, XP badges, and one-tap completion
+2. **Stat Matrix** - 31-column horizontal-scrolling grid (replica of automated dashboard)
+3. **Character Tab** - Profile page with global XP bar, player level, and radar charts
+
+### 💀 Hardcore Alarm System
+
+- **Soft Alarms**: Standard push notifications at scheduled times
+- **Hardcore Alarms**: Persistent vibration + high-priority alerts
+- **Snooze Penalty**: Clicking snooze deducts **5 XP** from your total
+- **15-Minute Grace**: Hardcore alarms trigger if habit incomplete 15 mins after scheduled time
+
+### 📊 Advanced Gamification
+
+- **XP Formula**: `XP_total = Σ(CompletedTasks × XP_value)`
+- **Level Formula**: `Level = ⌊√(XP_total / 100)⌋ + 1`
+- **Streak Engine**: Count consecutive completions
+- **Streak Multiplier**: **1.5x XP** when streak ≥ 3 days
+- **Attribute System**: Strength, Intelligence, Discipline with radar charts
+
+### 🎨 UI/UX Excellence
+
+- **Theme**: Dark mode with neon accents (#3A86FF, #00FFC2)
+- **Typography**: JetBrains Mono (monospaced)
+- **Animations**: Neon glow transitions, level-up effects, shimmer bars
+- **Responsive**: Mobile-first design with sidebar navigation
+
+---
+
+## 🚀 Quick Start
+
+### Web Version (Instant)
+
+1. Visit: **https://hyperpenetrator02.github.io/daily-tracker/**
+2. On mobile: Tap menu → **"Add to Home Screen"**
+3. Launch like a native app!
+
+### Android APK
+
+1. Download from [Releases](https://github.com/HyperPenetrator02/daily-tracker/releases)
+2. Enable "Unknown Sources" in Settings
+3. Install APK
+4. Grant permissions (Notifications, Vibrate, Wake Lock)
+
+**Full instructions:** [INSTALLATION.md](INSTALLATION.md)
+
+---
+
+## 📱 Screenshots
+
+<div align="center">
+
+| Quest Log | Stat Matrix | Character Profile |
+|-----------|-------------|-------------------|
+| ![Quest Log](https://via.placeholder.com/300x600/121212/3A86FF?text=Quest+Log) | ![Stat Matrix](https://via.placeholder.com/300x600/121212/3A86FF?text=Stat+Matrix) | ![Character](https://via.placeholder.com/300x600/121212/3A86FF?text=Character) |
+
+</div>
+
+---
+
+## 🎮 How to Use
+
+### Creating a Quest
+
+1. Tap **⚔️ Quest Log** → **+ New Quest**
+2. Fill in details:
+   - **Name**: e.g., "Wake up 6AM"
+   - **Category**: Strength / Intelligence / Discipline
+   - **Icon**: Choose from 16+ emojis
+   - **XP Reward**: 1-100 XP per completion
    - **Monthly Goal**: Target days (1-31)
-4. Click checkboxes to mark days as complete
-5. Watch your progress bars and XP grow!
+   - **Alarm Time**: Optional reminder
+   - **💀 Hardcore Alarm**: Enable for persistent alerts
 
-### Navigation
+3. Tap **Create Habit**
 
-- **📊 Daily Stats**: Main tracking view with all habits
-- **🌳 Skill Trees**: Coming soon feature
-- **⚙️ Settings**: Customize player name and manage data
+### Completing Quests
 
-## 🎨 Design
+- **Quest Log**: Tap **Complete Quest** button
+- **Stat Matrix**: Click checkboxes for specific days
 
-### Color Palette
-- **Background**: `#121212` (Dark)
-- **Accent**: `#3A86FF` (Neon Blue)
-- **Text**: `#E0E0E0` (Light Gray)
-- **Success**: `#06FFA5` (Neon Green)
-- **Warning**: `#FFD60A` (Yellow)
-- **Danger**: `#FF006E` (Pink)
+### Tracking Progress
 
-### Typography
-- **Font**: JetBrains Mono (Monospaced for hacker/gamer aesthetic)
+- **📊 Stat Matrix**: See your 31-day completion grid
+- **👤 Character**: View level, XP, and attribute radar charts
 
-### Effects
-- Neon glow on interactive elements
-- Smooth transitions and animations
-- Glassmorphism cards
-- Shimmer effect on progress bars
+---
 
-## 📊 How It Works
+## 🏗️ Technical Architecture
 
-### Data Model
-Each habit contains:
+### Backend (LocalStorage)
+
 ```javascript
+// Habits Collection
 {
-  id: string,           // Unique identifier
-  name: string,         // Habit name
-  icon: string,         // Emoji icon
-  goalValue: number,    // Monthly target days
-  dailyLogs: {          // Completion tracking
-    "2026-1-18": true,
-    "2026-1-19": false,
-    // ...
-  }
+  id: string,
+  name: string,
+  icon: string,
+  category: 'strength' | 'intelligence' | 'discipline',
+  xpReward: number,
+  goalValue: number,
+  alarmTime: string,
+  hardcoreAlarm: boolean,
+  dailyLogs: { [date: string]: boolean }
+}
+
+// Logs Collection
+{
+  habitId: string,
+  date: string,
+  status: boolean
 }
 ```
 
-### XP Calculation
-- **Habit XP**: `(CompletedDays / GoalValue) * 100`
-- **Total XP**: Sum of all habit XP values
-- **Player Level**: `Math.floor(TotalXP / 100) + 1`
-- **Level Progress**: `TotalXP % 100`
+### XP & Leveling Logic
 
-### Weekly Reset
-- Checks every Sunday if you want to reset weekly progress
-- Overall stats and level are preserved
-- Customizable reset logic in `app.js`
+```javascript
+// XP Algorithm
+XP_total = Σ(CompletedTasks × XP_value)
 
-## 🛠️ Technical Details
+// Level Logic
+Level = ⌊√(XP_total / 100)⌋ + 1
 
-### File Structure
+// Streak Multiplier
+if (Streak >= 3) {
+  XP_multiplier = 1.5
+}
+```
+
+### Notification System
+
+- **LocalNotificationService** integration
+- **Soft Alarm**: Standard push notification
+- **Hardcore Alarm**: Persistent vibration + high-priority alert
+- **Snooze Penalty**: -5 XP deduction
+
+---
+
+## 📊 Default Habits (Pre-configured)
+
+StatMaxer includes 10 habits matching the reference image:
+
+| Habit | Icon | Category | XP | Alarm | Hardcore |
+|-------|------|----------|-----|-------|----------|
+| Wake up 6AM | 🌅 | Discipline | 15 | 06:00 | ✅ |
+| No Snoozing | ⏰ | Discipline | 10 | 06:00 | ✅ |
+| 3L Water | 💧 | Strength | 10 | - | - |
+| Gym | 🏋️ | Strength | 20 | 07:00 | - |
+| Stretching | 🧘 | Strength | 10 | - | - |
+| Read 10 Pages | 📚 | Intelligence | 15 | 21:00 | - |
+| Meditation | 🧘 | Discipline | 15 | 06:30 | - |
+| Study 1 Hour | 💻 | Intelligence | 20 | - | - |
+| Skincare | ✨ | Discipline | 10 | 22:00 | - |
+| Track Expenses | 💰 | Intelligence | 10 | - | - |
+
+---
+
+## 🔧 File Structure
+
 ```
 Daily Tracker/
-├── index.html      # Main HTML structure
-├── styles.css      # Cyberpunk theme & styling
-├── app.js          # Application logic
-└── README.md       # This file
+├── index.html              # Main HTML structure
+├── styles.css              # Cyberpunk theme & styling
+├── app-rpg.js              # RPG OS application logic
+├── service-worker.js       # PWA offline support
+├── manifest.json           # PWA manifest
+├── README.md               # This file
+├── INSTALLATION.md         # Installation guide
+├── PRIVACY_POLICY.md       # Privacy policy
+├── DEPLOYMENT.md           # Deployment instructions
+└── .github/
+    └── workflows/
+        └── build-apk.yml   # Automated APK builds
 ```
 
-### Browser Compatibility
-- Modern browsers (Chrome, Firefox, Edge, Safari)
-- Requires JavaScript enabled
-- Uses localStorage API
-- CSS Grid and Flexbox layouts
+---
 
-### Data Storage
-All data is stored in `localStorage`:
-- `statmaxer_habits`: Array of habit objects
-- `statmaxer_player_name`: Custom player name
-- `statmaxer_last_reset`: Last weekly reset date
+## 🎨 Customization
 
-## 🎯 Usage Tips
+### Change Colors
 
-1. **Set Realistic Goals**: Start with achievable targets (e.g., 20 days instead of 31)
-2. **Use Visual Icons**: Choose icons that resonate with each habit
-3. **Check Daily**: Make it a routine to update your dashboard each day
-4. **Track Streaks**: Use the streak counter as motivation
-5. **Customize Name**: Set your player name in Settings for personalization
+Edit `styles.css`:
+```css
+:root {
+    --accent-primary: #3A86FF;  /* Neon Blue */
+    --success: #06FFA5;         /* Neon Green */
+    --danger: #FF006E;          /* Pink */
+}
+```
 
-## 🔧 Customization
+### Add More Icons
 
-### Adding More Icons
-Edit `index.html` line 177-188 to add more icon options:
+Edit `index.html` icon picker:
 ```html
 <button type="button" class="icon-option" data-icon="🎯">🎯</button>
 ```
 
-### Changing Colors
-Edit CSS variables in `styles.css` line 10-20:
-```css
---accent-primary: #3A86FF;  /* Change to your preferred color */
-```
+### Modify XP Formula
 
-### Modifying XP Formula
-Edit `getProgress()` method in `app.js` line 63-68:
+Edit `app-rpg.js`:
 ```javascript
-getProgress(habitId) {
-  const habit = this.habits.find(h => h.id === habitId);
-  if (!habit) return 0;
-  
-  const completed = this.getCompletedDays(habitId);
-  return Math.min((completed / habit.goalValue) * 100, 100);
+getTotalXP() {
+    return this.habits.reduce((total, habit) => {
+        const completed = this.getCompletedDays(habit.id);
+        return total + (completed * habit.xpReward);
+    }, 0);
 }
 ```
 
+---
+
+## 🔒 Privacy & Security
+
+### 100% Offline & Private
+
+- ✅ **No server communication** - All data stays on your device
+- ✅ **No analytics** - Zero tracking or telemetry
+- ✅ **No ads** - Completely ad-free
+- ✅ **No account required** - Use immediately
+- ✅ **Open source** - Fully transparent code
+
+### Data Storage
+
+All data stored in browser `localStorage`:
+- Habits configuration
+- Daily completion logs
+- Player profile (name, level, XP)
+- Notification preferences
+
+**Full policy:** [PRIVACY_POLICY.md](PRIVACY_POLICY.md)
+
+---
+
+## 🚢 Deployment
+
+### GitHub Pages (Web)
+
+```bash
+# Already deployed at:
+https://hyperpenetrator02.github.io/daily-tracker/
+```
+
+### Android APK (Automated)
+
+Every push to `main` triggers automated APK build via GitHub Actions:
+
+1. Builds Android APK
+2. Uploads artifact
+3. Creates GitHub Release
+4. Attaches APK to release
+
+**See:** [.github/workflows/build-apk.yml](.github/workflows/build-apk.yml)
+
+---
+
+## 🛠️ Development
+
+### Local Setup
+
+```bash
+# Clone repository
+git clone https://github.com/HyperPenetrator02/daily-tracker.git
+cd daily-tracker
+
+# Open in browser
+# No build step required - pure HTML/CSS/JS!
+```
+
+### Build Android APK
+
+```bash
+# Install Capacitor
+npm install -g @capacitor/cli @capacitor/core @capacitor/android
+
+# Initialize
+npx cap init "StatMaxer RPG OS" "com.statmaxer.rpgos" --web-dir=.
+
+# Add Android
+npx cap add android
+
+# Open in Android Studio
+npx cap open android
+
+# Build APK
+# Build > Build Bundle(s) / APK(s) > Build APK(s)
+```
+
+---
+
 ## 🐛 Troubleshooting
 
-**Data not saving?**
-- Ensure JavaScript is enabled
-- Check browser console for errors
-- Verify localStorage is not disabled
+### Notifications Not Working
 
-**Checkboxes not responding?**
-- Refresh the page
-- Clear browser cache
-- Check console for JavaScript errors
+1. Grant **Notifications** permission
+2. Disable battery optimization
+3. Add to **Protected Apps** (Xiaomi/Huawei)
 
-**Reset all data:**
-- Go to Settings → Reset All Data
-- Or clear localStorage manually in browser DevTools
+### Alarms Not Triggering
 
-## 📝 License
+1. Grant **Wake Lock** permission
+2. Disable **Battery Saver**
+3. Check alarm times are correct
 
-Free to use and modify for personal projects.
+### Data Not Saving
 
-## 🎮 Level Up Your Life!
+1. Ensure JavaScript enabled
+2. Check localStorage not disabled
+3. Clear app cache
 
-Start tracking your habits today and watch yourself level up! 🚀✨
+**Full guide:** [INSTALLATION.md](INSTALLATION.md)
+
+---
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/HyperPenetrator02/daily-tracker/issues)
+- **Privacy**: [Privacy Policy](PRIVACY_POLICY.md)
+- **Source**: [GitHub Repository](https://github.com/HyperPenetrator02/daily-tracker)
+
+---
+
+## 📜 License
+
+MIT License - Free to use and modify.
+
+---
+
+## 🎮 Start Your Journey
+
+**Download StatMaxer RPG OS today and level up your life!**
+
+<div align="center">
+
+[![Download APK](https://img.shields.io/badge/Download-Android_APK-3A86FF?style=for-the-badge&logo=android)](https://github.com/HyperPenetrator02/daily-tracker/releases)
+[![Try Web App](https://img.shields.io/badge/Try-Web_App-06FFA5?style=for-the-badge&logo=google-chrome)](https://hyperpenetrator02.github.io/daily-tracker/)
+[![View Source](https://img.shields.io/badge/View-Source_Code-FF006E?style=for-the-badge&logo=github)](https://github.com/HyperPenetrator02/daily-tracker)
+
+**⚡ Level Up Your Life! 🎮**
+
+</div>
