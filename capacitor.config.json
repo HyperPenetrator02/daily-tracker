@@ -1,32 +1,32 @@
 {
-    "appId": "com.statmaxer.rpgos",
-    "appName": "StatMaxer RPG OS",
-    "webDir": ".",
-    "bundledWebRuntime": false,
-    "plugins": {
-        "LocalNotifications": {
-            "smallIcon": "ic_stat_icon_config_sample",
-            "iconColor": "#3A86FF",
-            "sound": "beep.wav"
-        },
-        "SplashScreen": {
-            "launchShowDuration": 2000,
-            "backgroundColor": "#121212",
-            "showSpinner": false
-        }
+  "appId": "com.statmaxer.rpgos",
+  "appName": "StatMaxer RPG OS",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#3A86FF",
+      "sound": "beep.wav"
     },
-    "android": {
-        "buildOptions": {
-            "keystorePath": "",
-            "keystoreAlias": "",
-            "releaseType": "APK"
-        },
-        "permissions": [
-            "POST_NOTIFICATIONS",
-            "SCHEDULE_EXACT_ALARM",
-            "WAKE_LOCK",
-            "VIBRATE",
-            "RECEIVE_BOOT_COMPLETED"
-        ]
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#121212",
+      "showSpinner": false
     }
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "",
+      "keystoreAlias": "",
+      "releaseType": "APK"
+    },
+    "permissions": [
+      "POST_NOTIFICATIONS",
+      "SCHEDULE_EXACT_ALARM",
+      "WAKE_LOCK",
+      "VIBRATE",
+      "RECEIVE_BOOT_COMPLETED"
+    ]
+  }
 }
