@@ -1,12 +1,15 @@
 // StatMaxer Service Worker - Offline Support
 const CACHE_NAME = 'statmaxer-v1.0.0';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/app.js',
-    '/manifest.json',
-    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap'
+    './',
+    './index.html',
+    './styles.css',
+    './app-rpg.js',
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png',
+    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'
 ];
 
 // Install event - cache resources

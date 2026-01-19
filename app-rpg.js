@@ -131,10 +131,14 @@ class HabitManager {
 
     // XP Algorithm: XP_total = Σ(CompletedTasks × XP_value)
     getTotalXP() {
-        return this.habits.reduce((total, habit) => {
+        const habitXP = this.habits.reduce((total, habit) => {
             const completed = this.getCompletedDays(habit.id);
             return total + (completed * habit.xpReward);
         }, 0);
+
+        // Subtract snooze penalty
+        const penalty = parseInt(localStorage.getItem('statmaxer_snooze_penalty') || '0');
+        return Math.max(0, habitXP - penalty);
     }
 
     // Level Logic: Level = ⌊√(XP_total / 100)⌋ + 1
@@ -229,6 +233,19 @@ class NotificationManager {
         this.habitManager = habitManager;
         this.notificationPermission = 'default';
         this.scheduledAlarms = new Map();
+        this.setupMessageHandler();
+    }
+
+    setupMessageHandler() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'SNOOZE_PENALTY') {
+                    this.applySnoozePenalty();
+                    // Dispatch a custom event to notify UIManager
+                    window.dispatchEvent(new CustomEvent('statmaxer_update'));
+                }
+            });
+        }
     }
 
     async requestPermission() {
@@ -447,6 +464,7 @@ class UIManager {
         this.charCompleted = document.getElementById('char-completed');
         this.charTotalQuests = document.getElementById('char-total-quests');
         this.charMultiplier = document.getElementById('char-multiplier');
+        this.charPenalty = document.getElementById('char-penalty');
 
         // Modals
         this.addHabitModal = document.getElementById('add-habit-modal');
@@ -543,6 +561,11 @@ class UIManager {
         document.addEventListener('click', () => {
             this.notificationManager.requestPermission();
         }, { once: true });
+
+        // Listen for internal updates
+        window.addEventListener('statmaxer_update', () => {
+            this.render();
+        });
     }
 
     switchView(view) {
@@ -895,6 +918,7 @@ class UIManager {
         this.charCompleted.textContent = this.habitManager.getTotalCompleted();
         this.charTotalQuests.textContent = this.habitManager.habits.length;
         this.charMultiplier.textContent = `${this.habitManager.getXPMultiplier()}x`;
+        this.charPenalty.textContent = `-${this.notificationManager.getSnoozePenalty()}`;
     }
 }
 

@@ -2,7 +2,7 @@
   "name": "StatMaxer RPG OS",
   "short_name": "StatMaxer",
   "description": "Level Up Your Life - Gamified Habit Tracker",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#3A86FF",
@@ -26,7 +26,11 @@
     "vibrate",
     "wakeLock"
   ],
-  "categories": ["productivity", "lifestyle", "health"],
+  "categories": [
+    "productivity",
+    "lifestyle",
+    "health"
+  ],
   "screenshots": [
     {
       "src": "screenshot-1.png",

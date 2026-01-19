@@ -230,6 +230,11 @@
                             <div class="stat-card-value" id="char-multiplier">1.0x</div>
                             <div class="stat-card-label">XP Multiplier</div>
                         </div>
+                        <div class="stat-card">
+                            <div class="stat-card-icon">💀</div>
+                            <div class="stat-card-value" id="char-penalty" style="color: var(--danger);">0</div>
+                            <div class="stat-card-label">Snooze Penalties</div>
+                        </div>
                     </div>
 
                     <!-- Radar Charts Section -->
@@ -409,7 +414,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('./service-worker.js')
                     .then(reg => console.log('✅ Service Worker registered:', reg.scope))
                     .catch(err => console.log('❌ Service Worker registration failed:', err));
             });
