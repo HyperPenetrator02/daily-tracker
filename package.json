@@ -1,0 +1,30 @@
+{
+    "name": "statmaxer-rpg-os",
+    "version": "1.0.0",
+    "description": "Level Up Your Life - Gamified habit tracker with RPG mechanics",
+    "main": "index.html",
+    "scripts": {
+        "dev": "npx http-server . -p 8080",
+        "build": "echo 'No build step required - pure HTML/CSS/JS'",
+        "android": "npx cap sync android && npx cap open android",
+        "sync": "npx cap sync"
+    },
+    "keywords": [
+        "habit-tracker",
+        "gamification",
+        "rpg",
+        "pwa",
+        "productivity"
+    ],
+    "author": "HyperPenetrator02",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/HyperPenetrator02/daily-tracker.git"
+    },
+    "devDependencies": {
+        "@capacitor/android": "^5.7.8",
+        "@capacitor/cli": "^5.0.0",
+        "@capacitor/core": "^5.0.0"
+    }
+}
