@@ -23,9 +23,19 @@ jobs:
     - name: Install dependencies
       run: npm install
         
-    - name: Make gradlew executable
-      run: chmod +x android/gradlew
-      
+    - name: Prepare web directory
+      run: |
+        mkdir -p www
+        cp index.html www/
+        cp styles.css www/
+        cp app-rpg.js www/
+        cp manifest.json www/
+        cp icon-192.png www/
+        cp icon-512.png www/
+        
+    - name: Sync Capacitor
+      run: npx cap sync android
+        
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
@@ -35,6 +45,7 @@ jobs:
     - name: Build Android APK
       run: |
         cd android
+        chmod +x gradlew
         ./gradlew assembleDebug --no-daemon
         
     - name: Upload APK

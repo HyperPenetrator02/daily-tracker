@@ -1,7 +1,7 @@
 {
   "appId": "com.statmaxer.rpgos",
   "appName": "StatMaxer RPG OS",
-  "webDir": ".",
+  "webDir": "www",
   "bundledWebRuntime": false,
   "plugins": {
     "LocalNotifications": {
