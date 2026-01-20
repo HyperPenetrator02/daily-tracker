@@ -417,6 +417,16 @@
     <!-- Chart.js for Radar Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
+    <!-- Capacitor Runtime (for native features in APK) -->
+    <script type="module">
+        // Initialize Capacitor if available
+        if (window.Capacitor) {
+            console.log('✅ Capacitor detected - Native mode');
+        } else {
+            console.log('🌐 Web mode - Using browser APIs');
+        }
+    </script>
+
     <!-- Main Application Script -->
     <script src="app-rpg.js"></script>
 

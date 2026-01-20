@@ -233,8 +233,34 @@ class NotificationManager {
         this.habitManager = habitManager;
         this.notificationPermission = 'default';
         this.scheduledAlarms = new Map();
-        this.isNative = window.Capacitor && window.Capacitor.isNativePlatform();
+        this.isNative = false;
+        this.LocalNotifications = null;
+
+        // Detect Capacitor and initialize
+        this.initializeCapacitor();
         this.setupMessageHandler();
+    }
+
+    async initializeCapacitor() {
+        try {
+            // Check if Capacitor is available
+            if (typeof window.Capacitor !== 'undefined') {
+                this.isNative = window.Capacitor.isNativePlatform();
+                console.log('🔔 Capacitor detected, Native platform:', this.isNative);
+
+                if (this.isNative) {
+                    // Dynamically import LocalNotifications
+                    const { LocalNotifications } = await import('@capacitor/local-notifications');
+                    this.LocalNotifications = LocalNotifications;
+                    console.log('✅ LocalNotifications plugin loaded');
+                }
+            } else {
+                console.log('🌐 Running in web mode');
+            }
+        } catch (error) {
+            console.error('❌ Error initializing Capacitor:', error);
+            this.isNative = false;
+        }
     }
 
     setupMessageHandler() {
@@ -242,7 +268,6 @@ class NotificationManager {
             navigator.serviceWorker.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'SNOOZE_PENALTY') {
                     this.applySnoozePenalty();
-                    // Dispatch a custom event to notify UIManager
                     window.dispatchEvent(new CustomEvent('statmaxer_update'));
                 }
             });
@@ -250,103 +275,142 @@ class NotificationManager {
     }
 
     async requestPermission() {
-        if (this.isNative) {
-            const { LocalNotifications } = window.Capacitor.Plugins;
-            const status = await LocalNotifications.requestPermissions();
-            this.notificationPermission = status.display;
-            return status.display === 'granted';
-        } else if ('Notification' in window) {
-            this.notificationPermission = await Notification.requestPermission();
-            return this.notificationPermission === 'granted';
+        try {
+            if (this.isNative && this.LocalNotifications) {
+                console.log('📱 Requesting native notification permission...');
+                const result = await this.LocalNotifications.requestPermissions();
+                this.notificationPermission = result.display;
+                console.log('✅ Native permission result:', result.display);
+                return result.display === 'granted';
+            } else if ('Notification' in window) {
+                console.log('🌐 Requesting web notification permission...');
+                this.notificationPermission = await Notification.requestPermission();
+                console.log('✅ Web permission result:', this.notificationPermission);
+                return this.notificationPermission === 'granted';
+            }
+        } catch (error) {
+            console.error('❌ Error requesting permission:', error);
         }
         return false;
     }
 
     async scheduleAlarms() {
-        // Clear existing alarms
-        if (this.isNative) {
-            const { LocalNotifications } = window.Capacitor.Plugins;
-            const pending = await LocalNotifications.getPending();
-            if (pending.notifications.length > 0) {
-                await LocalNotifications.cancel(pending);
-            }
-        } else {
-            this.scheduledAlarms.forEach(timeout => clearTimeout(timeout));
-            this.scheduledAlarms.clear();
-        }
+        try {
+            console.log('⏰ Scheduling alarms...');
 
-        this.habitManager.habits.forEach(habit => {
-            if (habit.alarmTime && habit.isActive) {
-                this.scheduleAlarm(habit);
+            // Clear existing alarms
+            if (this.isNative && this.LocalNotifications) {
+                const pending = await this.LocalNotifications.getPending();
+                console.log('📋 Pending notifications:', pending.notifications.length);
+                if (pending.notifications.length > 0) {
+                    await this.LocalNotifications.cancel(pending);
+                    console.log('🗑️ Cleared old notifications');
+                }
+            } else {
+                this.scheduledAlarms.forEach(timeout => clearTimeout(timeout));
+                this.scheduledAlarms.clear();
             }
-        });
+
+            // Schedule new alarms
+            const activeHabits = this.habitManager.habits.filter(h => h.alarmTime && h.isActive);
+            console.log(`📅 Scheduling ${activeHabits.length} active alarms`);
+
+            for (const habit of activeHabits) {
+                await this.scheduleAlarm(habit);
+            }
+
+            console.log('✅ All alarms scheduled successfully');
+        } catch (error) {
+            console.error('❌ Error scheduling alarms:', error);
+        }
     }
 
     async scheduleAlarm(habit) {
-        const [hours, minutes] = habit.alarmTime.split(':').map(Number);
-        const now = new Date();
-        const alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+        try {
+            const [hours, minutes] = habit.alarmTime.split(':').map(Number);
+            const now = new Date();
+            const alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
 
-        if (alarmTime < now) {
-            alarmTime.setDate(alarmTime.getDate() + 1);
-        }
+            if (alarmTime < now) {
+                alarmTime.setDate(alarmTime.getDate() + 1);
+            }
 
-        if (this.isNative) {
-            const { LocalNotifications } = window.Capacitor.Plugins;
-            await LocalNotifications.schedule({
-                notifications: [
-                    {
+            console.log(`⏰ Scheduling alarm for ${habit.name} at ${habit.alarmTime}`);
+
+            if (this.isNative && this.LocalNotifications) {
+                // Native Android notification
+                const notificationId = Math.abs(habit.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0));
+
+                await this.LocalNotifications.schedule({
+                    notifications: [{
                         title: `⚔️ Quest: ${habit.name}`,
                         body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE!' : ''}`,
-                        id: habit.id.split('-').reduce((acc, char) => acc + char.charCodeAt(0), 0), // Convert ID to integer
-                        schedule: { at: alarmTime, repeats: true },
+                        id: notificationId,
+                        schedule: {
+                            at: alarmTime,
+                            allowWhileIdle: true
+                        },
                         sound: 'beep.wav',
-                        attachments: null,
-                        actionTypeId: '',
-                        extra: { habitId: habit.id }
-                    }
-                ]
-            });
-        } else {
-            const timeUntilAlarm = alarmTime - now;
-            const timeout = setTimeout(() => {
-                this.triggerAlarm(habit);
-            }, timeUntilAlarm);
-            this.scheduledAlarms.set(habit.id, timeout);
+                        smallIcon: 'ic_stat_icon_config_sample',
+                        iconColor: '#3A86FF',
+                        extra: {
+                            habitId: habit.id,
+                            habitName: habit.name
+                        }
+                    }]
+                });
+
+                console.log(`✅ Native alarm scheduled for ${habit.name} (ID: ${notificationId})`);
+            } else {
+                // Web notification fallback
+                const timeUntilAlarm = alarmTime - now;
+                const timeout = setTimeout(() => {
+                    this.triggerAlarm(habit);
+                }, timeUntilAlarm);
+                this.scheduledAlarms.set(habit.id, timeout);
+                console.log(`✅ Web alarm scheduled for ${habit.name} in ${Math.round(timeUntilAlarm / 1000 / 60)} minutes`);
+            }
+        } catch (error) {
+            console.error(`❌ Error scheduling alarm for ${habit.name}:`, error);
         }
     }
 
     async triggerAlarm(habit) {
-        if (this.notificationPermission !== 'granted') {
-            await this.requestPermission();
+        try {
+            if (this.notificationPermission !== 'granted') {
+                await this.requestPermission();
+            }
+
+            const options = {
+                body: `Time to complete: ${habit.name}`,
+                icon: './icon-192.png',
+                badge: './icon-192.png',
+                vibrate: habit.hardcoreAlarm ? [200, 100, 200, 100, 200] : [200, 100, 200],
+                requireInteraction: habit.hardcoreAlarm,
+                tag: `habit-${habit.id}`,
+                actions: [
+                    { action: 'complete', title: 'Complete' },
+                    { action: 'snooze', title: 'Snooze (-5 XP)' }
+                ]
+            };
+
+            if (habit.hardcoreAlarm) {
+                options.body += '\n💀 HARDCORE MODE - No snoozing!';
+            }
+
+            const notification = new Notification(`⚔️ Quest: ${habit.name}`, options);
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+
+            // Reschedule for next day (web only)
+            this.scheduleAlarm(habit);
+            console.log(`🔔 Web notification triggered for ${habit.name}`);
+        } catch (error) {
+            console.error(`❌ Error triggering alarm for ${habit.name}:`, error);
         }
-
-        const options = {
-            body: `Time to complete: ${habit.name}`,
-            icon: './icon-192.png',
-            badge: './icon-192.png',
-            vibrate: habit.hardcoreAlarm ? [200, 100, 200, 100, 200] : [200, 100, 200],
-            requireInteraction: habit.hardcoreAlarm,
-            tag: `habit-${habit.id}`,
-            actions: [
-                { action: 'complete', title: 'Complete' },
-                { action: 'snooze', title: 'Snooze (-5 XP)' }
-            ]
-        };
-
-        if (habit.hardcoreAlarm) {
-            options.body += '\n💀 HARDCORE MODE - No snoozing!';
-        }
-
-        const notification = new Notification(`⚔️ Quest: ${habit.name}`, options);
-
-        notification.onclick = () => {
-            window.focus();
-            notification.close();
-        };
-
-        // Reschedule for next day (web only)
-        this.scheduleAlarm(habit);
     }
 
     applySnoozePenalty() {
