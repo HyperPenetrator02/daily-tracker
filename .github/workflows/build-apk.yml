@@ -24,6 +24,7 @@ jobs:
       run: |
         npm install
         npm install -g @capacitor/cli @capacitor/core @capacitor/android
+        npm install @capacitor/local-notifications
         
     - name: Prepare web directory
       run: |

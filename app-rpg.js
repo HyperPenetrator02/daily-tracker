@@ -233,6 +233,7 @@ class NotificationManager {
         this.habitManager = habitManager;
         this.notificationPermission = 'default';
         this.scheduledAlarms = new Map();
+        this.isNative = window.Capacitor && window.Capacitor.isNativePlatform();
         this.setupMessageHandler();
     }
 
@@ -249,17 +250,30 @@ class NotificationManager {
     }
 
     async requestPermission() {
-        if ('Notification' in window) {
+        if (this.isNative) {
+            const { LocalNotifications } = window.Capacitor.Plugins;
+            const status = await LocalNotifications.requestPermissions();
+            this.notificationPermission = status.display;
+            return status.display === 'granted';
+        } else if ('Notification' in window) {
             this.notificationPermission = await Notification.requestPermission();
             return this.notificationPermission === 'granted';
         }
         return false;
     }
 
-    scheduleAlarms() {
+    async scheduleAlarms() {
         // Clear existing alarms
-        this.scheduledAlarms.forEach(timeout => clearTimeout(timeout));
-        this.scheduledAlarms.clear();
+        if (this.isNative) {
+            const { LocalNotifications } = window.Capacitor.Plugins;
+            const pending = await LocalNotifications.getPending();
+            if (pending.notifications.length > 0) {
+                await LocalNotifications.cancel(pending);
+            }
+        } else {
+            this.scheduledAlarms.forEach(timeout => clearTimeout(timeout));
+            this.scheduledAlarms.clear();
+        }
 
         this.habitManager.habits.forEach(habit => {
             if (habit.alarmTime && habit.isActive) {
@@ -268,7 +282,7 @@ class NotificationManager {
         });
     }
 
-    scheduleAlarm(habit) {
+    async scheduleAlarm(habit) {
         const [hours, minutes] = habit.alarmTime.split(':').map(Number);
         const now = new Date();
         const alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
@@ -277,13 +291,29 @@ class NotificationManager {
             alarmTime.setDate(alarmTime.getDate() + 1);
         }
 
-        const timeUntilAlarm = alarmTime - now;
-
-        const timeout = setTimeout(() => {
-            this.triggerAlarm(habit);
-        }, timeUntilAlarm);
-
-        this.scheduledAlarms.set(habit.id, timeout);
+        if (this.isNative) {
+            const { LocalNotifications } = window.Capacitor.Plugins;
+            await LocalNotifications.schedule({
+                notifications: [
+                    {
+                        title: `⚔️ Quest: ${habit.name}`,
+                        body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE!' : ''}`,
+                        id: habit.id.split('-').reduce((acc, char) => acc + char.charCodeAt(0), 0), // Convert ID to integer
+                        schedule: { at: alarmTime, repeats: true },
+                        sound: 'beep.wav',
+                        attachments: null,
+                        actionTypeId: '',
+                        extra: { habitId: habit.id }
+                    }
+                ]
+            });
+        } else {
+            const timeUntilAlarm = alarmTime - now;
+            const timeout = setTimeout(() => {
+                this.triggerAlarm(habit);
+            }, timeUntilAlarm);
+            this.scheduledAlarms.set(habit.id, timeout);
+        }
     }
 
     async triggerAlarm(habit) {
@@ -293,8 +323,8 @@ class NotificationManager {
 
         const options = {
             body: `Time to complete: ${habit.name}`,
-            icon: '/icon-192.png',
-            badge: '/icon-192.png',
+            icon: './icon-192.png',
+            badge: './icon-192.png',
             vibrate: habit.hardcoreAlarm ? [200, 100, 200, 100, 200] : [200, 100, 200],
             requireInteraction: habit.hardcoreAlarm,
             tag: `habit-${habit.id}`,
@@ -315,7 +345,7 @@ class NotificationManager {
             notification.close();
         };
 
-        // Reschedule for next day
+        // Reschedule for next day (web only)
         this.scheduleAlarm(habit);
     }
 
@@ -929,8 +959,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const radarChartManager = new RadarChartManager(habitManager);
     const uiManager = new UIManager(habitManager, notificationManager, radarChartManager);
 
-    // Schedule alarms
-    notificationManager.scheduleAlarms();
+    // Request permissions and schedule alarms
+    notificationManager.requestPermission().then(() => {
+        notificationManager.scheduleAlarms();
+    });
 
     // Make managers globally accessible for debugging
     window.statMaxer = {
