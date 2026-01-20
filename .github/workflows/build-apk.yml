@@ -30,7 +30,10 @@ jobs:
         mkdir -p www
         cp index.html www/
         cp styles.css www/
+        cp mobile.css www/
+        cp screen-2412x1080.css www/
         cp app-rpg.js www/
+        cp service-worker.js www/
         cp manifest.json www/
         cp icon-192.png www/
         cp icon-512.png www/
