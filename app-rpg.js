@@ -235,10 +235,13 @@ class NotificationManager {
         this.scheduledAlarms = new Map();
         this.isNative = false;
         this.LocalNotifications = null;
+        this.activeAlarms = new Set(); // Track currently ringing alarms
+        this.snoozeTimers = new Map(); // Track snooze timers
 
         // Detect Capacitor and initialize
         this.initializeCapacitor();
         this.setupMessageHandler();
+        this.setupNotificationListeners();
     }
 
     async initializeCapacitor() {
@@ -253,6 +256,9 @@ class NotificationManager {
                     const { LocalNotifications } = await import('@capacitor/local-notifications');
                     this.LocalNotifications = LocalNotifications;
                     console.log('✅ LocalNotifications plugin loaded');
+
+                    // Setup native notification action handlers
+                    this.setupNativeHandlers();
                 }
             } else {
                 console.log('🌐 Running in web mode');
@@ -260,6 +266,82 @@ class NotificationManager {
         } catch (error) {
             console.error('❌ Error initializing Capacitor:', error);
             this.isNative = false;
+        }
+    }
+
+    async setupNativeHandlers() {
+        if (!this.LocalNotifications) return;
+
+        try {
+            // Listen for notification actions
+            await this.LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
+                console.log('📱 Notification action:', notification);
+
+                const habitId = notification.notification.extra?.habitId;
+                const action = notification.actionId;
+
+                if (action === 'complete' && habitId) {
+                    // Mark habit as complete for today
+                    const today = new Date().getDate();
+                    this.habitManager.toggleDay(habitId, today);
+                    window.dispatchEvent(new CustomEvent('statmaxer_update'));
+                    this.showToast('✅ Quest completed! XP earned!');
+                } else if (action === 'snooze' && habitId) {
+                    const habit = this.habitManager.habits.find(h => h.id === habitId);
+                    if (habit && habit.hardcoreAlarm) {
+                        // Hardcore mode - no snoozing allowed!
+                        this.applySnoozePenalty();
+                        this.showToast('💀 HARDCORE MODE: Snooze denied! -5 XP penalty!');
+                    } else {
+                        // Regular snooze - 10 minutes
+                        this.applySnoozePenalty();
+                        this.scheduleSnooze(habit, 10);
+                        this.showToast('😴 Snoozed for 10 min. -5 XP penalty!');
+                    }
+                    window.dispatchEvent(new CustomEvent('statmaxer_update'));
+                }
+            });
+
+            console.log('✅ Native notification handlers setup');
+        } catch (error) {
+            console.error('❌ Error setting up native handlers:', error);
+        }
+    }
+
+    setupNotificationListeners() {
+        // Web notification click handler
+        if ('serviceWorker' in navigator && 'Notification' in window) {
+            navigator.serviceWorker.ready.then((registration) => {
+                // Listen for notification clicks from service worker
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
+                        const { habitId, action } = event.data;
+                        this.handleNotificationAction(habitId, action);
+                    }
+                });
+            });
+        }
+    }
+
+    handleNotificationAction(habitId, action) {
+        const habit = this.habitManager.habits.find(h => h.id === habitId);
+        if (!habit) return;
+
+        if (action === 'complete') {
+            const today = new Date().getDate();
+            this.habitManager.toggleDay(habitId, today);
+            window.dispatchEvent(new CustomEvent('statmaxer_update'));
+            this.showToast('✅ Quest completed! XP earned!');
+        } else if (action === 'snooze') {
+            if (habit.hardcoreAlarm) {
+                this.applySnoozePenalty();
+                this.showToast('💀 HARDCORE MODE: Snooze denied! -5 XP penalty!');
+            } else {
+                this.applySnoozePenalty();
+                this.scheduleSnooze(habit, 10);
+                this.showToast('😴 Snoozed for 10 min. -5 XP penalty!');
+            }
+            window.dispatchEvent(new CustomEvent('statmaxer_update'));
         }
     }
 
@@ -311,6 +393,10 @@ class NotificationManager {
                 this.scheduledAlarms.clear();
             }
 
+            // Clear snooze timers
+            this.snoozeTimers.forEach(timer => clearTimeout(timer));
+            this.snoozeTimers.clear();
+
             // Schedule new alarms
             const activeHabits = this.habitManager.habits.filter(h => h.alarmTime && h.isActive);
             console.log(`📅 Scheduling ${activeHabits.length} active alarms`);
@@ -325,39 +411,66 @@ class NotificationManager {
         }
     }
 
-    async scheduleAlarm(habit) {
+    async scheduleAlarm(habit, isSnooze = false, snoozeMinutes = 0) {
         try {
             const [hours, minutes] = habit.alarmTime.split(':').map(Number);
             const now = new Date();
-            const alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+            let alarmTime;
 
-            if (alarmTime < now) {
-                alarmTime.setDate(alarmTime.getDate() + 1);
+            if (isSnooze) {
+                // Snooze alarm - schedule for X minutes from now
+                alarmTime = new Date(now.getTime() + snoozeMinutes * 60000);
+            } else {
+                // Regular alarm - schedule for today or tomorrow
+                alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+                if (alarmTime < now) {
+                    alarmTime.setDate(alarmTime.getDate() + 1);
+                }
             }
 
-            console.log(`⏰ Scheduling alarm for ${habit.name} at ${habit.alarmTime}`);
+            console.log(`⏰ Scheduling ${isSnooze ? 'SNOOZE' : 'alarm'} for ${habit.name} at ${alarmTime.toLocaleTimeString()}`);
 
             if (this.isNative && this.LocalNotifications) {
-                // Native Android notification
+                // Native Android notification with repeating schedule
                 const notificationId = Math.abs(habit.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0));
 
+                const notificationConfig = {
+                    title: `⚔️ Quest: ${habit.name}`,
+                    body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE - No snoozing!' : ''}`,
+                    id: notificationId,
+                    schedule: {
+                        at: alarmTime,
+                        allowWhileIdle: true
+                    },
+                    sound: 'default',
+                    smallIcon: 'ic_stat_icon_config_sample',
+                    iconColor: '#3A86FF',
+                    channelId: 'statmaxer-alarms',
+                    importance: habit.hardcoreAlarm ? 5 : 4, // Max importance for hardcore
+                    priority: habit.hardcoreAlarm ? 2 : 1, // High priority
+                    ongoing: habit.hardcoreAlarm, // Persistent for hardcore
+                    autoCancel: !habit.hardcoreAlarm,
+                    extra: {
+                        habitId: habit.id,
+                        habitName: habit.name,
+                        hardcore: habit.hardcoreAlarm
+                    },
+                    actionTypeId: 'QUEST_ALARM',
+                    actions: habit.hardcoreAlarm ? [
+                        { id: 'complete', title: '✅ Complete Quest' }
+                    ] : [
+                        { id: 'complete', title: '✅ Complete' },
+                        { id: 'snooze', title: '😴 Snooze (-5 XP)' }
+                    ]
+                };
+
+                // Add repeating schedule if not a snooze
+                if (!isSnooze) {
+                    notificationConfig.schedule.every = 'day';
+                }
+
                 await this.LocalNotifications.schedule({
-                    notifications: [{
-                        title: `⚔️ Quest: ${habit.name}`,
-                        body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE!' : ''}`,
-                        id: notificationId,
-                        schedule: {
-                            at: alarmTime,
-                            allowWhileIdle: true
-                        },
-                        sound: 'beep.wav',
-                        smallIcon: 'ic_stat_icon_config_sample',
-                        iconColor: '#3A86FF',
-                        extra: {
-                            habitId: habit.id,
-                            habitName: habit.name
-                        }
-                    }]
+                    notifications: [notificationConfig]
                 });
 
                 console.log(`✅ Native alarm scheduled for ${habit.name} (ID: ${notificationId})`);
@@ -367,6 +480,7 @@ class NotificationManager {
                 const timeout = setTimeout(() => {
                     this.triggerAlarm(habit);
                 }, timeUntilAlarm);
+
                 this.scheduledAlarms.set(habit.id, timeout);
                 console.log(`✅ Web alarm scheduled for ${habit.name} in ${Math.round(timeUntilAlarm / 1000 / 60)} minutes`);
             }
@@ -375,39 +489,70 @@ class NotificationManager {
         }
     }
 
+    async scheduleSnooze(habit, minutes) {
+        const snoozeTime = new Date(Date.now() + minutes * 60000);
+        console.log(`😴 Snoozing ${habit.name} until ${snoozeTime.toLocaleTimeString()}`);
+
+        await this.scheduleAlarm(habit, true, minutes);
+    }
+
     async triggerAlarm(habit) {
         try {
             if (this.notificationPermission !== 'granted') {
                 await this.requestPermission();
             }
 
+            this.activeAlarms.add(habit.id);
+
             const options = {
-                body: `Time to complete: ${habit.name}`,
+                body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE!' : ''}`,
                 icon: './icon-192.png',
                 badge: './icon-192.png',
-                vibrate: habit.hardcoreAlarm ? [200, 100, 200, 100, 200] : [200, 100, 200],
+                vibrate: habit.hardcoreAlarm ? [500, 200, 500, 200, 500, 200, 500] : [200, 100, 200],
                 requireInteraction: habit.hardcoreAlarm,
                 tag: `habit-${habit.id}`,
-                actions: [
-                    { action: 'complete', title: 'Complete' },
-                    { action: 'snooze', title: 'Snooze (-5 XP)' }
-                ]
+                renotify: true,
+                silent: false,
+                data: {
+                    habitId: habit.id,
+                    habitName: habit.name,
+                    hardcore: habit.hardcoreAlarm
+                }
             };
 
-            if (habit.hardcoreAlarm) {
-                options.body += '\n💀 HARDCORE MODE - No snoozing!';
+            // Add actions only if service worker supports it
+            if ('serviceWorker' in navigator) {
+                options.actions = habit.hardcoreAlarm ? [
+                    { action: 'complete', title: '✅ Complete Quest' }
+                ] : [
+                    { action: 'complete', title: '✅ Complete' },
+                    { action: 'snooze', title: '😴 Snooze (-5 XP)' }
+                ];
             }
 
-            const notification = new Notification(`⚔️ Quest: ${habit.name}`, options);
+            if ('serviceWorker' in navigator && 'showNotification' in ServiceWorkerRegistration.prototype) {
+                // Use service worker notification for better action support
+                const registration = await navigator.serviceWorker.ready;
+                await registration.showNotification(`⚔️ Quest: ${habit.name}`, options);
+            } else {
+                // Fallback to regular notification
+                const notification = new Notification(`⚔️ Quest: ${habit.name}`, options);
 
-            notification.onclick = () => {
-                window.focus();
-                notification.close();
-            };
+                notification.onclick = () => {
+                    window.focus();
+                    this.handleNotificationAction(habit.id, 'complete');
+                    notification.close();
+                };
+            }
 
             // Reschedule for next day (web only)
-            this.scheduleAlarm(habit);
-            console.log(`🔔 Web notification triggered for ${habit.name}`);
+            if (!this.isNative) {
+                setTimeout(() => {
+                    this.scheduleAlarm(habit);
+                }, 1000);
+            }
+
+            console.log(`🔔 Alarm triggered for ${habit.name}`);
         } catch (error) {
             console.error(`❌ Error triggering alarm for ${habit.name}:`, error);
         }
@@ -416,10 +561,41 @@ class NotificationManager {
     applySnoozePenalty() {
         const currentPenalty = parseInt(localStorage.getItem('statmaxer_snooze_penalty') || '0');
         localStorage.setItem('statmaxer_snooze_penalty', (currentPenalty + 5).toString());
+        console.log(`💀 Snooze penalty applied: -5 XP (Total: -${currentPenalty + 5} XP)`);
     }
 
     getSnoozePenalty() {
         return parseInt(localStorage.getItem('statmaxer_snooze_penalty') || '0');
+    }
+
+    showToast(message) {
+        // Create a toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 1rem 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--accent-primary);
+            box-shadow: var(--glow-primary);
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        `;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 }
 

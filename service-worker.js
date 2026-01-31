@@ -79,24 +79,87 @@ self.addEventListener('push', (event) => {
 
 // Notification click event
 self.addEventListener('notificationclick', (event) => {
+    console.log('🔔 Notification clicked:', event.action);
     event.notification.close();
+
+    const habitId = event.notification.data?.habitId;
+    const habitName = event.notification.data?.habitName;
+    const hardcore = event.notification.data?.hardcore;
 
     if (event.action === 'complete') {
         // Open app and mark as complete
         event.waitUntil(
-            clients.openWindow('/')
-        );
-    } else if (event.action === 'snooze') {
-        // Apply XP penalty
-        event.waitUntil(
-            clients.matchAll({ type: 'window' }).then((clientList) => {
+            clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+                // Send message to all clients
                 clientList.forEach((client) => {
                     client.postMessage({
-                        type: 'SNOOZE_PENALTY',
-                        xpLoss: 5
+                        type: 'NOTIFICATION_CLICK',
+                        habitId: habitId,
+                        action: 'complete'
                     });
                 });
+
+                // Focus or open window
+                if (clientList.length > 0) {
+                    return clientList[0].focus();
+                } else {
+                    return clients.openWindow('/');
+                }
+            })
+        );
+    } else if (event.action === 'snooze') {
+        // Handle snooze - check if hardcore mode
+        if (hardcore) {
+            // Hardcore mode - deny snooze and apply penalty
+            event.waitUntil(
+                clients.matchAll({ type: 'window' }).then((clientList) => {
+                    clientList.forEach((client) => {
+                        client.postMessage({
+                            type: 'SNOOZE_PENALTY',
+                            xpLoss: 5,
+                            denied: true,
+                            habitName: habitName
+                        });
+                    });
+                })
+            );
+
+            // Show denial notification
+            event.waitUntil(
+                self.registration.showNotification('💀 HARDCORE MODE', {
+                    body: `Snooze denied for "${habitName}"! -5 XP penalty applied.`,
+                    icon: '/icon-192.png',
+                    badge: '/icon-192.png',
+                    tag: 'hardcore-denial',
+                    requireInteraction: false,
+                    vibrate: [100, 50, 100]
+                })
+            );
+        } else {
+            // Regular snooze - apply penalty and notify
+            event.waitUntil(
+                clients.matchAll({ type: 'window' }).then((clientList) => {
+                    clientList.forEach((client) => {
+                        client.postMessage({
+                            type: 'NOTIFICATION_CLICK',
+                            habitId: habitId,
+                            action: 'snooze'
+                        });
+                    });
+                })
+            );
+        }
+    } else {
+        // Default click - just open the app
+        event.waitUntil(
+            clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+                if (clientList.length > 0) {
+                    return clientList[0].focus();
+                } else {
+                    return clients.openWindow('/');
+                }
             })
         );
     }
 });
+
