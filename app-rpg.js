@@ -528,7 +528,8 @@ class UIManager {
             quests: document.getElementById('quests-view'),
             matrix: document.getElementById('matrix-view'),
             character: document.getElementById('character-view'),
-            settings: document.getElementById('settings-view')
+            settings: document.getElementById('settings-view'),
+            upcoming: document.getElementById('upcoming-view')
         };
 
         // Header
@@ -681,6 +682,14 @@ class UIManager {
                 if (key === 'character') {
                     // Update radar charts when switching to character view
                     setTimeout(() => this.radarChartManager.updateCharts(), 100);
+                }
+
+                // On mobile, close sidebar when clicking a nav item
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('mobile-overlay');
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                    if (overlay) overlay.classList.remove('active');
                 }
             } else {
                 this.views[key].classList.add('hidden');

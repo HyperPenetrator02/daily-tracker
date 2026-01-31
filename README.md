@@ -141,7 +141,7 @@ Track habits across 6 RPG-style categories:
 
 ## 🔒 Privacy
 
-- **100% Offline**: All data stored locally on your device
+- **100% Offline**: All data stored locally on your devices.
 - **No Tracking**: Zero analytics or data collection
 - **No Ads**: Completely ad-free experience
 - **Open Source**: Full transparency
