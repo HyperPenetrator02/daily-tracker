@@ -1,8 +1,3 @@
-// ========================================
-// StatMaxer RPG OS - Complete Application
-// ========================================
-
-// === Constants ===
 const CATEGORIES = {
     strength: { name: 'Strength', icon: '💪', color: '#FF006E' },
     intelligence: { name: 'Intelligence', icon: '🧠', color: '#3A86FF' },
@@ -22,32 +17,17 @@ const DEFAULT_HABITS = [
     { name: 'Track Expenses', icon: '💰', category: 'intelligence', xp: 10, alarm: '', hardcore: false }
 ];
 
-// === Data Model ===
 class HabitManager {
     constructor() {
         this.habits = this.loadHabits();
         this.currentMonth = new Date();
-        this.daysInMonth = new Date(
-            this.currentMonth.getFullYear(),
-            this.currentMonth.getMonth() + 1,
-            0
-        ).getDate();
+        this.daysInMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 0).getDate();
         this.initializeDefaultHabits();
     }
 
     initializeDefaultHabits() {
         if (this.habits.length === 0) {
-            DEFAULT_HABITS.forEach(habit => {
-                this.addHabit(
-                    habit.name,
-                    habit.icon,
-                    habit.category,
-                    habit.xp,
-                    30,
-                    habit.alarm,
-                    habit.hardcore
-                );
-            });
+            DEFAULT_HABITS.forEach(h => this.addHabit(h.name, h.icon, h.category, h.xp, 30, h.alarm, h.hardcore));
         }
     }
 
@@ -63,9 +43,7 @@ class HabitManager {
     addHabit(name, icon, category, xpReward, goalValue, alarmTime, hardcoreAlarm) {
         const habit = {
             id: Date.now().toString(),
-            name,
-            icon,
-            category,
+            name, icon, category,
             xpReward: parseInt(xpReward),
             goalValue: parseInt(goalValue),
             alarmTime: alarmTime || '',
@@ -86,65 +64,48 @@ class HabitManager {
     toggleDay(habitId, day) {
         const habit = this.habits.find(h => h.id === habitId);
         if (!habit) return;
-
         const dateKey = this.getDateKey(day);
         const wasChecked = habit.dailyLogs[dateKey] || false;
         habit.dailyLogs[dateKey] = !wasChecked;
         this.saveHabits();
-
-        return !wasChecked; // Return new state
+        return !wasChecked;
     }
 
     isDayChecked(habitId, day) {
         const habit = this.habits.find(h => h.id === habitId);
         if (!habit) return false;
-
-        const dateKey = this.getDateKey(day);
-        return habit.dailyLogs[dateKey] || false;
+        return habit.dailyLogs[this.getDateKey(day)] || false;
     }
 
     isTodayChecked(habitId) {
-        const today = new Date().getDate();
-        return this.isDayChecked(habitId, today);
+        return this.isDayChecked(habitId, new Date().getDate());
     }
 
     getDateKey(day) {
-        const year = this.currentMonth.getFullYear();
-        const month = this.currentMonth.getMonth();
-        return `${year}-${month + 1}-${day}`;
+        return `${this.currentMonth.getFullYear()}-${this.currentMonth.getMonth() + 1}-${day}`;
     }
 
     getCompletedDays(habitId) {
         const habit = this.habits.find(h => h.id === habitId);
-        if (!habit) return 0;
-
-        return Object.values(habit.dailyLogs).filter(Boolean).length;
+        return habit ? Object.values(habit.dailyLogs).filter(Boolean).length : 0;
     }
 
     getProgress(habitId) {
         const habit = this.habits.find(h => h.id === habitId);
         if (!habit) return 0;
-
-        const completed = this.getCompletedDays(habitId);
-        return Math.min((completed / habit.goalValue) * 100, 100);
+        return Math.min((this.getCompletedDays(habitId) / habit.goalValue) * 100, 100);
     }
 
-    // XP Algorithm: XP_total = Σ(CompletedTasks × XP_value)
     getTotalXP() {
         const habitXP = this.habits.reduce((total, habit) => {
-            const completed = this.getCompletedDays(habit.id);
-            return total + (completed * habit.xpReward);
+            return total + (this.getCompletedDays(habit.id) * habit.xpReward);
         }, 0);
-
-        // Subtract snooze penalty
         const penalty = parseInt(localStorage.getItem('statmaxer_snooze_penalty') || '0');
         return Math.max(0, habitXP - penalty);
     }
 
-    // Level Logic: Level = ⌊√(XP_total / 100)⌋ + 1
     getPlayerLevel() {
-        const totalXP = this.getTotalXP();
-        return Math.floor(Math.sqrt(totalXP / 100)) + 1;
+        return Math.floor(Math.sqrt(this.getTotalXP() / 100)) + 1;
     }
 
     getLevelProgress() {
@@ -154,28 +115,22 @@ class HabitManager {
         const xpForNextLevel = Math.pow(currentLevel, 2) * 100;
         const xpInCurrentLevel = totalXP - xpForCurrentLevel;
         const xpNeededForLevel = xpForNextLevel - xpForCurrentLevel;
-
         return Math.floor((xpInCurrentLevel / xpNeededForLevel) * 100);
     }
 
     getXPForNextLevel() {
-        const currentLevel = this.getPlayerLevel();
-        return Math.pow(currentLevel, 2) * 100;
+        return Math.pow(this.getPlayerLevel(), 2) * 100;
     }
 
-    // Streak Engine: Count consecutive true values
     getStreak() {
         let maxStreak = 0;
         const today = new Date();
-
         this.habits.forEach(habit => {
             let currentStreak = 0;
             let checkDate = new Date(today);
-
             while (true) {
                 const day = checkDate.getDate();
                 const dateKey = `${checkDate.getFullYear()}-${checkDate.getMonth() + 1}-${day}`;
-
                 if (habit.dailyLogs[dateKey]) {
                     currentStreak++;
                     checkDate.setDate(checkDate.getDate() - 1);
@@ -183,40 +138,26 @@ class HabitManager {
                     break;
                 }
             }
-
             maxStreak = Math.max(maxStreak, currentStreak);
         });
-
         return maxStreak;
     }
 
-    // XP Multiplier: 1.5x if streak >= 3
     getXPMultiplier() {
-        const streak = this.getStreak();
-        return streak >= 3 ? 1.5 : 1.0;
+        return this.getStreak() >= 3 ? 1.5 : 1.0;
     }
 
-    // Category Stats for Radar Charts
     getCategoryStats() {
-        const stats = {
-            strength: 0,
-            intelligence: 0,
-            discipline: 0
-        };
-
+        const stats = { strength: 0, intelligence: 0, discipline: 0 };
         this.habits.forEach(habit => {
-            const completed = this.getCompletedDays(habit.id);
-            const categoryXP = completed * habit.xpReward;
+            const categoryXP = this.getCompletedDays(habit.id) * habit.xpReward;
             stats[habit.category] += categoryXP;
         });
-
         return stats;
     }
 
     getTotalCompleted() {
-        return this.habits.reduce((total, habit) => {
-            return total + this.getCompletedDays(habit.id);
-        }, 0);
+        return this.habits.reduce((total, habit) => total + this.getCompletedDays(habit.id), 0);
     }
 
     resetAllData() {
@@ -227,7 +168,6 @@ class HabitManager {
     }
 }
 
-// === Notification Manager ===
 class NotificationManager {
     constructor(habitManager) {
         this.habitManager = habitManager;
@@ -235,10 +175,8 @@ class NotificationManager {
         this.scheduledAlarms = new Map();
         this.isNative = false;
         this.LocalNotifications = null;
-        this.activeAlarms = new Set(); // Track currently ringing alarms
-        this.snoozeTimers = new Map(); // Track snooze timers
-
-        // Detect Capacitor and initialize
+        this.activeAlarms = new Set();
+        this.snoozeTimers = new Map();
         this.initializeCapacitor();
         this.setupMessageHandler();
         this.setupNotificationListeners();
@@ -246,54 +184,36 @@ class NotificationManager {
 
     async initializeCapacitor() {
         try {
-            // Check if Capacitor is available
             if (typeof window.Capacitor !== 'undefined') {
                 this.isNative = window.Capacitor.isNativePlatform();
-                console.log('🔔 Capacitor detected, Native platform:', this.isNative);
-
                 if (this.isNative) {
-                    // Dynamically import LocalNotifications
                     const { LocalNotifications } = await import('@capacitor/local-notifications');
                     this.LocalNotifications = LocalNotifications;
-                    console.log('✅ LocalNotifications plugin loaded');
-
-                    // Setup native notification action handlers
                     this.setupNativeHandlers();
                 }
-            } else {
-                console.log('🌐 Running in web mode');
             }
         } catch (error) {
-            console.error('❌ Error initializing Capacitor:', error);
+            console.error('Capacitor init error:', error);
             this.isNative = false;
         }
     }
 
     async setupNativeHandlers() {
         if (!this.LocalNotifications) return;
-
         try {
-            // Listen for notification actions
             await this.LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-                console.log('📱 Notification action:', notification);
-
                 const habitId = notification.notification.extra?.habitId;
                 const action = notification.actionId;
-
                 if (action === 'complete' && habitId) {
-                    // Mark habit as complete for today
-                    const today = new Date().getDate();
-                    this.habitManager.toggleDay(habitId, today);
+                    this.habitManager.toggleDay(habitId, new Date().getDate());
                     window.dispatchEvent(new CustomEvent('statmaxer_update'));
                     this.showToast('✅ Quest completed! XP earned!');
                 } else if (action === 'snooze' && habitId) {
                     const habit = this.habitManager.habits.find(h => h.id === habitId);
                     if (habit && habit.hardcoreAlarm) {
-                        // Hardcore mode - no snoozing allowed!
                         this.applySnoozePenalty();
                         this.showToast('💀 HARDCORE MODE: Snooze denied! -5 XP penalty!');
                     } else {
-                        // Regular snooze - 10 minutes
                         this.applySnoozePenalty();
                         this.scheduleSnooze(habit, 10);
                         this.showToast('😴 Snoozed for 10 min. -5 XP penalty!');
@@ -301,22 +221,17 @@ class NotificationManager {
                     window.dispatchEvent(new CustomEvent('statmaxer_update'));
                 }
             });
-
-            console.log('✅ Native notification handlers setup');
         } catch (error) {
-            console.error('❌ Error setting up native handlers:', error);
+            console.error('Native handler setup error:', error);
         }
     }
 
     setupNotificationListeners() {
-        // Web notification click handler
         if ('serviceWorker' in navigator && 'Notification' in window) {
-            navigator.serviceWorker.ready.then((registration) => {
-                // Listen for notification clicks from service worker
+            navigator.serviceWorker.ready.then(() => {
                 navigator.serviceWorker.addEventListener('message', (event) => {
                     if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
-                        const { habitId, action } = event.data;
-                        this.handleNotificationAction(habitId, action);
+                        this.handleNotificationAction(event.data.habitId, event.data.action);
                     }
                 });
             });
@@ -326,10 +241,8 @@ class NotificationManager {
     handleNotificationAction(habitId, action) {
         const habit = this.habitManager.habits.find(h => h.id === habitId);
         if (!habit) return;
-
         if (action === 'complete') {
-            const today = new Date().getDate();
-            this.habitManager.toggleDay(habitId, today);
+            this.habitManager.toggleDay(habitId, new Date().getDate());
             window.dispatchEvent(new CustomEvent('statmaxer_update'));
             this.showToast('✅ Quest completed! XP earned!');
         } else if (action === 'snooze') {
@@ -359,55 +272,38 @@ class NotificationManager {
     async requestPermission() {
         try {
             if (this.isNative && this.LocalNotifications) {
-                console.log('📱 Requesting native notification permission...');
                 const result = await this.LocalNotifications.requestPermissions();
                 this.notificationPermission = result.display;
-                console.log('✅ Native permission result:', result.display);
                 return result.display === 'granted';
             } else if ('Notification' in window) {
-                console.log('🌐 Requesting web notification permission...');
                 this.notificationPermission = await Notification.requestPermission();
-                console.log('✅ Web permission result:', this.notificationPermission);
                 return this.notificationPermission === 'granted';
             }
         } catch (error) {
-            console.error('❌ Error requesting permission:', error);
+            console.error('Permission request error:', error);
         }
         return false;
     }
 
     async scheduleAlarms() {
         try {
-            console.log('⏰ Scheduling alarms...');
-
-            // Clear existing alarms
             if (this.isNative && this.LocalNotifications) {
                 const pending = await this.LocalNotifications.getPending();
-                console.log('📋 Pending notifications:', pending.notifications.length);
                 if (pending.notifications.length > 0) {
                     await this.LocalNotifications.cancel(pending);
-                    console.log('🗑️ Cleared old notifications');
                 }
             } else {
                 this.scheduledAlarms.forEach(timeout => clearTimeout(timeout));
                 this.scheduledAlarms.clear();
             }
-
-            // Clear snooze timers
             this.snoozeTimers.forEach(timer => clearTimeout(timer));
             this.snoozeTimers.clear();
-
-            // Schedule new alarms
             const activeHabits = this.habitManager.habits.filter(h => h.alarmTime && h.isActive);
-            console.log(`📅 Scheduling ${activeHabits.length} active alarms`);
-
             for (const habit of activeHabits) {
                 await this.scheduleAlarm(habit);
             }
-
-            console.log('✅ All alarms scheduled successfully');
         } catch (error) {
-            console.error('❌ Error scheduling alarms:', error);
+            console.error('Schedule alarms error:', error);
         }
     }
 
@@ -416,83 +312,46 @@ class NotificationManager {
             const [hours, minutes] = habit.alarmTime.split(':').map(Number);
             const now = new Date();
             let alarmTime;
-
             if (isSnooze) {
-                // Snooze alarm - schedule for X minutes from now
                 alarmTime = new Date(now.getTime() + snoozeMinutes * 60000);
             } else {
-                // Regular alarm - schedule for today or tomorrow
                 alarmTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
-                if (alarmTime < now) {
-                    alarmTime.setDate(alarmTime.getDate() + 1);
-                }
+                if (alarmTime < now) alarmTime.setDate(alarmTime.getDate() + 1);
             }
-
-            console.log(`⏰ Scheduling ${isSnooze ? 'SNOOZE' : 'alarm'} for ${habit.name} at ${alarmTime.toLocaleTimeString()}`);
-
             if (this.isNative && this.LocalNotifications) {
-                // Native Android notification with repeating schedule
                 const notificationId = Math.abs(habit.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0));
-
                 const notificationConfig = {
                     title: `⚔️ Quest: ${habit.name}`,
                     body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE - No snoozing!' : ''}`,
                     id: notificationId,
-                    schedule: {
-                        at: alarmTime,
-                        allowWhileIdle: true
-                    },
+                    schedule: { at: alarmTime, allowWhileIdle: true },
                     sound: 'default',
                     smallIcon: 'ic_stat_icon_config_sample',
                     iconColor: '#3A86FF',
                     channelId: 'statmaxer-alarms',
-                    importance: habit.hardcoreAlarm ? 5 : 4, // Max importance for hardcore
-                    priority: habit.hardcoreAlarm ? 2 : 1, // High priority
-                    ongoing: habit.hardcoreAlarm, // Persistent for hardcore
+                    importance: habit.hardcoreAlarm ? 5 : 4,
+                    priority: habit.hardcoreAlarm ? 2 : 1,
+                    ongoing: habit.hardcoreAlarm,
                     autoCancel: !habit.hardcoreAlarm,
-                    extra: {
-                        habitId: habit.id,
-                        habitName: habit.name,
-                        hardcore: habit.hardcoreAlarm
-                    },
+                    extra: { habitId: habit.id, habitName: habit.name, hardcore: habit.hardcoreAlarm },
                     actionTypeId: 'QUEST_ALARM',
-                    actions: habit.hardcoreAlarm ? [
-                        { id: 'complete', title: '✅ Complete Quest' }
-                    ] : [
-                        { id: 'complete', title: '✅ Complete' },
-                        { id: 'snooze', title: '😴 Snooze (-5 XP)' }
-                    ]
+                    actions: habit.hardcoreAlarm ?
+                        [{ id: 'complete', title: '✅ Complete Quest' }] :
+                        [{ id: 'complete', title: '✅ Complete' }, { id: 'snooze', title: '😴 Snooze (-5 XP)' }]
                 };
-
-                // Add repeating schedule if not a snooze
-                if (!isSnooze) {
-                    notificationConfig.schedule.every = 'day';
-                }
-
-                await this.LocalNotifications.schedule({
-                    notifications: [notificationConfig]
-                });
-
-                console.log(`✅ Native alarm scheduled for ${habit.name} (ID: ${notificationId})`);
+                if (!isSnooze) notificationConfig.schedule.every = 'day';
+                await this.LocalNotifications.schedule({ notifications: [notificationConfig] });
             } else {
-                // Web notification fallback
                 const timeUntilAlarm = alarmTime - now;
-                const timeout = setTimeout(() => {
-                    this.triggerAlarm(habit);
-                }, timeUntilAlarm);
-
+                const timeout = setTimeout(() => this.triggerAlarm(habit), timeUntilAlarm);
                 this.scheduledAlarms.set(habit.id, timeout);
-                console.log(`✅ Web alarm scheduled for ${habit.name} in ${Math.round(timeUntilAlarm / 1000 / 60)} minutes`);
             }
         } catch (error) {
-            console.error(`❌ Error scheduling alarm for ${habit.name}:`, error);
+            console.error('Schedule alarm error:', error);
         }
     }
 
     async scheduleSnooze(habit, minutes) {
-        const snoozeTime = new Date(Date.now() + minutes * 60000);
-        console.log(`😴 Snoozing ${habit.name} until ${snoozeTime.toLocaleTimeString()}`);
-
         await this.scheduleAlarm(habit, true, minutes);
     }
 
@@ -501,9 +360,7 @@ class NotificationManager {
             if (this.notificationPermission !== 'granted') {
                 await this.requestPermission();
             }
-
             this.activeAlarms.add(habit.id);
-
             const options = {
                 body: `Time to complete: ${habit.name}${habit.hardcoreAlarm ? '\n💀 HARDCORE MODE!' : ''}`,
                 icon: './icon-192.png',
@@ -513,55 +370,35 @@ class NotificationManager {
                 tag: `habit-${habit.id}`,
                 renotify: true,
                 silent: false,
-                data: {
-                    habitId: habit.id,
-                    habitName: habit.name,
-                    hardcore: habit.hardcoreAlarm
-                }
+                data: { habitId: habit.id, habitName: habit.name, hardcore: habit.hardcoreAlarm }
             };
-
-            // Add actions only if service worker supports it
             if ('serviceWorker' in navigator) {
-                options.actions = habit.hardcoreAlarm ? [
-                    { action: 'complete', title: '✅ Complete Quest' }
-                ] : [
-                    { action: 'complete', title: '✅ Complete' },
-                    { action: 'snooze', title: '😴 Snooze (-5 XP)' }
-                ];
+                options.actions = habit.hardcoreAlarm ?
+                    [{ action: 'complete', title: '✅ Complete Quest' }] :
+                    [{ action: 'complete', title: '✅ Complete' }, { action: 'snooze', title: '😴 Snooze (-5 XP)' }];
             }
-
             if ('serviceWorker' in navigator && 'showNotification' in ServiceWorkerRegistration.prototype) {
-                // Use service worker notification for better action support
                 const registration = await navigator.serviceWorker.ready;
                 await registration.showNotification(`⚔️ Quest: ${habit.name}`, options);
             } else {
-                // Fallback to regular notification
                 const notification = new Notification(`⚔️ Quest: ${habit.name}`, options);
-
                 notification.onclick = () => {
                     window.focus();
                     this.handleNotificationAction(habit.id, 'complete');
                     notification.close();
                 };
             }
-
-            // Reschedule for next day (web only)
             if (!this.isNative) {
-                setTimeout(() => {
-                    this.scheduleAlarm(habit);
-                }, 1000);
+                setTimeout(() => this.scheduleAlarm(habit), 1000);
             }
-
-            console.log(`🔔 Alarm triggered for ${habit.name}`);
         } catch (error) {
-            console.error(`❌ Error triggering alarm for ${habit.name}:`, error);
+            console.error('Trigger alarm error:', error);
         }
     }
 
     applySnoozePenalty() {
         const currentPenalty = parseInt(localStorage.getItem('statmaxer_snooze_penalty') || '0');
         localStorage.setItem('statmaxer_snooze_penalty', (currentPenalty + 5).toString());
-        console.log(`💀 Snooze penalty applied: -5 XP (Total: -${currentPenalty + 5} XP)`);
     }
 
     getSnoozePenalty() {
@@ -569,29 +406,11 @@ class NotificationManager {
     }
 
     showToast(message) {
-        // Create a toast notification
         const toast = document.createElement('div');
         toast.className = 'toast-notification';
         toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            padding: 1rem 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--accent-primary);
-            box-shadow: var(--glow-primary);
-            z-index: 10000;
-            animation: slideUp 0.3s ease;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-        `;
-
+        toast.style.cssText = `position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--bg-secondary);color:var(--text-primary);padding:1rem 2rem;border-radius:var(--radius-lg);border:1px solid var(--accent-primary);box-shadow:var(--glow-primary);z-index:10000;animation:slideUp 0.3s ease;font-family:'JetBrains Mono',monospace;font-size:0.9rem;max-width:90%;text-align:center;`;
         document.body.appendChild(toast);
-
         setTimeout(() => {
             toast.style.animation = 'fadeOut 0.3s ease';
             setTimeout(() => toast.remove(), 300);
@@ -599,7 +418,6 @@ class NotificationManager {
     }
 }
 
-// === Radar Chart Manager ===
 class RadarChartManager {
     constructor(habitManager) {
         this.habitManager = habitManager;
@@ -609,12 +427,7 @@ class RadarChartManager {
     createRadarChart(canvasId, label, value, color) {
         const ctx = document.getElementById(canvasId);
         if (!ctx) return;
-
-        // Destroy existing chart
-        if (this.charts[canvasId]) {
-            this.charts[canvasId].destroy();
-        }
-
+        if (this.charts[canvasId]) this.charts[canvasId].destroy();
         this.charts[canvasId] = new Chart(ctx, {
             type: 'radar',
             data: {
@@ -644,47 +457,27 @@ class RadarChartManager {
                     r: {
                         beginAtZero: true,
                         max: 100,
-                        ticks: {
-                            stepSize: 20,
-                            color: '#A0A0A0',
-                            backdropColor: 'transparent'
-                        },
-                        grid: {
-                            color: '#242424'
-                        },
-                        pointLabels: {
-                            color: '#E0E0E0',
-                            font: {
-                                family: 'JetBrains Mono',
-                                size: 11
-                            }
-                        }
+                        ticks: { stepSize: 20, color: '#A0A0A0', backdropColor: 'transparent' },
+                        grid: { color: '#242424' },
+                        pointLabels: { color: '#E0E0E0', font: { family: 'JetBrains Mono', size: 11 } }
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     }
 
     updateCharts() {
         const stats = this.habitManager.getCategoryStats();
-
         this.createRadarChart('strength-radar', 'Strength', stats.strength, '#FF006E');
         this.createRadarChart('intelligence-radar', 'Intelligence', stats.intelligence, '#3A86FF');
         this.createRadarChart('discipline-radar', 'Discipline', stats.discipline, '#06FFA5');
-
-        // Update values
         document.getElementById('strength-value').textContent = Math.floor(stats.strength);
         document.getElementById('intelligence-value').textContent = Math.floor(stats.intelligence);
         document.getElementById('discipline-value').textContent = Math.floor(stats.discipline);
     }
 }
 
-// === UI Manager ===
 class UIManager {
     constructor(habitManager, notificationManager, radarChartManager) {
         this.habitManager = habitManager;
@@ -698,7 +491,6 @@ class UIManager {
     }
 
     initializeElements() {
-        // Navigation
         this.navItems = document.querySelectorAll('.nav-item');
         this.views = {
             quests: document.getElementById('quests-view'),
@@ -707,26 +499,18 @@ class UIManager {
             settings: document.getElementById('settings-view'),
             upcoming: document.getElementById('upcoming-view')
         };
-
-        // Header
         this.playerNameEl = document.querySelector('.player-name');
         this.streakCountEl = document.getElementById('streak-count');
         this.totalXPEl = document.getElementById('total-xp');
         this.playerLevelEl = document.getElementById('player-level');
         this.levelBarFillEl = document.getElementById('level-bar-fill');
         this.levelPercentageEl = document.getElementById('level-percentage');
-
-        // Quest Log
         this.questCardsContainer = document.getElementById('quest-cards-container');
         this.questsEmptyState = document.getElementById('quests-empty-state');
-
-        // Matrix
         this.currentMonthEl = document.getElementById('current-month');
         this.daysHeaderEl = document.getElementById('days-header');
         this.habitsContainerEl = document.getElementById('habits-container');
         this.matrixEmptyState = document.getElementById('matrix-empty-state');
-
-        // Character
         this.charLevelBadge = document.getElementById('char-level-badge');
         this.charPlayerName = document.getElementById('char-player-name');
         this.charXPValue = document.getElementById('char-xp-value');
@@ -736,13 +520,9 @@ class UIManager {
         this.charTotalQuests = document.getElementById('char-total-quests');
         this.charMultiplier = document.getElementById('char-multiplier');
         this.charPenalty = document.getElementById('char-penalty');
-
-        // Modals
         this.addHabitModal = document.getElementById('add-habit-modal');
         this.deleteModal = document.getElementById('delete-modal');
         this.habitForm = document.getElementById('habit-form');
-
-        // Form inputs
         this.habitNameInput = document.getElementById('habit-name');
         this.habitCategoryInput = document.getElementById('habit-category');
         this.habitIconInput = document.getElementById('habit-icon');
@@ -751,116 +531,56 @@ class UIManager {
         this.habitAlarmInput = document.getElementById('habit-alarm');
         this.habitHardcoreInput = document.getElementById('habit-hardcore');
         this.iconPicker = document.getElementById('icon-picker');
-
-        // Settings
         this.playerNameInput = document.getElementById('player-name-input');
     }
 
     attachEventListeners() {
-        // Navigation
         this.navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const view = item.dataset.view;
-                this.switchView(view);
-            });
+            item.addEventListener('click', () => this.switchView(item.dataset.view));
         });
-
-        // Add habit buttons
-        const addButtons = ['add-quest-btn', 'add-habit-btn', 'empty-quest-btn', 'empty-add-btn'];
-        addButtons.forEach(btnId => {
+        ['add-quest-btn', 'add-habit-btn', 'empty-quest-btn', 'empty-add-btn'].forEach(btnId => {
             const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.addEventListener('click', () => this.openAddHabitModal());
-            }
+            if (btn) btn.addEventListener('click', () => this.openAddHabitModal());
         });
-
-        // Modal controls
-        document.getElementById('modal-close').addEventListener('click', () => {
-            this.closeAddHabitModal();
-        });
-        document.getElementById('cancel-habit').addEventListener('click', () => {
-            this.closeAddHabitModal();
-        });
-
-        // Icon picker
+        document.getElementById('modal-close').addEventListener('click', () => this.closeAddHabitModal());
+        document.getElementById('cancel-habit').addEventListener('click', () => this.closeAddHabitModal());
         this.iconPicker.querySelectorAll('.icon-option').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.iconPicker.querySelectorAll('.icon-option').forEach(b => {
-                    b.classList.remove('selected');
-                });
+                this.iconPicker.querySelectorAll('.icon-option').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
                 this.habitIconInput.value = btn.dataset.icon;
             });
         });
-
-        // Form submission
         this.habitForm.addEventListener('submit', (e) => {
             e.preventDefault();
             this.createHabit();
         });
-
-        // Delete modal
-        document.getElementById('cancel-delete').addEventListener('click', () => {
-            this.closeDeleteModal();
-        });
-        document.getElementById('confirm-delete').addEventListener('click', () => {
-            this.confirmDelete();
-        });
-
-        // Settings
-        this.playerNameInput.addEventListener('change', () => {
-            this.savePlayerName();
-        });
-        document.getElementById('reset-data-btn').addEventListener('click', () => {
-            this.resetData();
-        });
-
-        // Close modals on overlay click
+        document.getElementById('cancel-delete').addEventListener('click', () => this.closeDeleteModal());
+        document.getElementById('confirm-delete').addEventListener('click', () => this.confirmDelete());
+        this.playerNameInput.addEventListener('change', () => this.savePlayerName());
+        document.getElementById('reset-data-btn').addEventListener('click', () => this.resetData());
         this.addHabitModal.addEventListener('click', (e) => {
-            if (e.target === this.addHabitModal) {
-                this.closeAddHabitModal();
-            }
+            if (e.target === this.addHabitModal) this.closeAddHabitModal();
         });
         this.deleteModal.addEventListener('click', (e) => {
-            if (e.target === this.deleteModal) {
-                this.closeDeleteModal();
-            }
+            if (e.target === this.deleteModal) this.closeDeleteModal();
         });
-
-        // Request notification permission on first interaction
-        document.addEventListener('click', () => {
-            this.notificationManager.requestPermission();
-        }, { once: true });
-
-        // Listen for internal updates
-        window.addEventListener('statmaxer_update', () => {
-            this.render();
-        });
+        document.addEventListener('click', () => this.notificationManager.requestPermission(), { once: true });
+        window.addEventListener('statmaxer_update', () => this.render());
     }
 
     switchView(view) {
         this.currentView = view;
-
-        // Update navigation
         this.navItems.forEach(item => {
-            if (item.dataset.view === view) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
+            item.classList.toggle('active', item.dataset.view === view);
         });
-
-        // Update views
         Object.keys(this.views).forEach(key => {
             if (key === view) {
                 this.views[key].classList.remove('hidden');
                 if (key === 'character') {
-                    // Update radar charts when switching to character view
                     setTimeout(() => this.radarChartManager.updateCharts(), 100);
                 }
-
-                // On mobile, close sidebar when clicking a nav item
                 if (window.innerWidth <= 768) {
                     const sidebar = document.getElementById('sidebar');
                     const overlay = document.getElementById('mobile-overlay');
@@ -887,16 +607,16 @@ class UIManager {
 
     createHabit() {
         const name = this.habitNameInput.value.trim();
-        const category = this.habitCategoryInput.value;
-        const icon = this.habitIconInput.value;
-        const xp = this.habitXPInput.value;
-        const goal = this.habitGoalInput.value;
-        const alarm = this.habitAlarmInput.value;
-        const hardcore = this.habitHardcoreInput.checked;
-
         if (!name) return;
-
-        this.habitManager.addHabit(name, icon, category, xp, goal, alarm, hardcore);
+        this.habitManager.addHabit(
+            name,
+            this.habitIconInput.value,
+            this.habitCategoryInput.value,
+            this.habitXPInput.value,
+            this.habitGoalInput.value,
+            this.habitAlarmInput.value,
+            this.habitHardcoreInput.checked
+        );
         this.notificationManager.scheduleAlarms();
         this.closeAddHabitModal();
         this.render();
@@ -953,246 +673,137 @@ class UIManager {
     }
 
     renderHeader() {
-        // Update stats
         this.streakCountEl.textContent = this.habitManager.getStreak();
         this.totalXPEl.textContent = this.habitManager.getTotalXP();
         this.playerLevelEl.textContent = this.habitManager.getPlayerLevel();
-
-        // Update level bar
         const levelProgress = this.habitManager.getLevelProgress();
         this.levelBarFillEl.style.width = `${levelProgress}%`;
         this.levelPercentageEl.textContent = `${levelProgress}%`;
-
-        // Update current month
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'];
-        const monthName = monthNames[this.habitManager.currentMonth.getMonth()];
-        const year = this.habitManager.currentMonth.getFullYear();
-        this.currentMonthEl.textContent = `${monthName} ${year}`;
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        this.currentMonthEl.textContent = `${monthNames[this.habitManager.currentMonth.getMonth()]} ${this.habitManager.currentMonth.getFullYear()}`;
     }
 
     renderQuestLog() {
         const habits = this.habitManager.habits;
-
         if (habits.length === 0) {
             this.questsEmptyState.classList.remove('hidden');
             this.questCardsContainer.innerHTML = '';
             return;
         }
-
         this.questsEmptyState.classList.add('hidden');
         this.questCardsContainer.innerHTML = '';
-
         habits.forEach(habit => {
-            const questCard = this.createQuestCard(habit);
-            this.questCardsContainer.appendChild(questCard);
-        });
-    }
-
-    createQuestCard(habit) {
-        const card = document.createElement('div');
-        card.className = 'quest-card';
-
-        const isCompleted = this.habitManager.isTodayChecked(habit.id);
-        const categoryInfo = CATEGORIES[habit.category];
-
-        card.innerHTML = `
-            <div class="quest-card-header">
-                <div class="quest-icon-large">${habit.icon}</div>
-                <div class="quest-info">
-                    <div class="quest-name">${habit.name}</div>
-                    <div class="quest-category">
-                        ${categoryInfo.icon} ${categoryInfo.name}
+            const card = document.createElement('div');
+            card.className = 'quest-card';
+            const isCompleted = this.habitManager.isTodayChecked(habit.id);
+            const categoryInfo = CATEGORIES[habit.category];
+            card.innerHTML = `
+                <div class="quest-card-header">
+                    <div class="quest-icon-large">${habit.icon}</div>
+                    <div class="quest-info">
+                        <h3 class="quest-name">${habit.name}</h3>
+                        <p class="quest-category">${categoryInfo.icon} ${categoryInfo.name}</p>
                     </div>
+                    <div class="quest-xp-badge">+${habit.xpReward} XP</div>
                 </div>
-                <div class="quest-xp-badge">+${habit.xpReward} XP</div>
-            </div>
-            <div class="quest-actions">
-                <button class="quest-check-btn ${isCompleted ? 'completed' : ''}" data-habit-id="${habit.id}">
-                    <span>${isCompleted ? '✓ Completed' : 'Complete Quest'}</span>
-                </button>
-            </div>
-            ${habit.alarmTime ? `
-                <div class="quest-alarm-toggle">
-                    <span>⏰ Alarm: <span class="quest-alarm-time">${habit.alarmTime}</span></span>
-                    ${habit.hardcoreAlarm ? '<span class="hardcore-badge">💀 HARDCORE</span>' : ''}
+                <div class="quest-card-body">
+                    <button class="quest-check-btn ${isCompleted ? 'completed' : ''}" data-habit-id="${habit.id}">
+                        <span class="check-icon">${isCompleted ? '✓' : '○'}</span>
+                        <span class="check-text">${isCompleted ? 'Completed' : 'Mark Complete'}</span>
+                    </button>
+                    ${habit.alarmTime ? `
+                        <div class="quest-alarm-info">
+                            <span class="alarm-icon">⏰</span>
+                            <span class="alarm-time">${habit.alarmTime}</span>
+                            ${habit.hardcoreAlarm ? '<span class="hardcore-badge">💀 HARDCORE</span>' : ''}
+                        </div>
+                    ` : ''}
                 </div>
-            ` : ''}
-        `;
-
-        // Add event listener to check button
-        const checkBtn = card.querySelector('.quest-check-btn');
-        checkBtn.addEventListener('click', () => {
-            const today = new Date().getDate();
-            const newState = this.habitManager.toggleDay(habit.id, today);
-            checkBtn.classList.toggle('completed', newState);
-            checkBtn.querySelector('span').textContent = newState ? '✓ Completed' : 'Complete Quest';
-            this.renderHeader();
-            this.renderCharacter();
+            `;
+            const checkBtn = card.querySelector('.quest-check-btn');
+            checkBtn.addEventListener('click', () => {
+                const today = new Date().getDate();
+                const newState = this.habitManager.toggleDay(habit.id, today);
+                checkBtn.classList.toggle('completed', newState);
+                checkBtn.querySelector('.check-icon').textContent = newState ? '✓' : '○';
+                checkBtn.querySelector('.check-text').textContent = newState ? 'Completed' : 'Mark Complete';
+                this.render();
+            });
+            this.questCardsContainer.appendChild(card);
         });
-
-        return card;
     }
 
     renderMatrix() {
-        this.renderDaysHeader();
-        this.renderHabits();
-    }
-
-    renderDaysHeader() {
+        const habits = this.habitManager.habits;
+        if (habits.length === 0) {
+            this.matrixEmptyState.classList.remove('hidden');
+            this.habitsContainerEl.innerHTML = '';
+            this.daysHeaderEl.innerHTML = '';
+            return;
+        }
+        this.matrixEmptyState.classList.add('hidden');
         this.daysHeaderEl.innerHTML = '';
-        const today = new Date().getDate();
-        const currentMonth = new Date().getMonth();
-        const displayMonth = this.habitManager.currentMonth.getMonth();
-
         for (let day = 1; day <= this.habitManager.daysInMonth; day++) {
             const dayLabel = document.createElement('div');
             dayLabel.className = 'day-label';
             dayLabel.textContent = day;
-
-            if (day === today && currentMonth === displayMonth) {
-                dayLabel.style.color = 'var(--warning)';
-                dayLabel.style.fontWeight = '700';
-            }
-
             this.daysHeaderEl.appendChild(dayLabel);
         }
-    }
-
-    renderHabits() {
-        const habits = this.habitManager.habits;
-
-        if (habits.length === 0) {
-            this.matrixEmptyState.classList.remove('hidden');
-            this.habitsContainerEl.innerHTML = '';
-            return;
-        }
-
-        this.matrixEmptyState.classList.add('hidden');
         this.habitsContainerEl.innerHTML = '';
-
         habits.forEach(habit => {
-            const habitRow = this.createHabitRow(habit);
-            this.habitsContainerEl.appendChild(habitRow);
-        });
-    }
-
-    createHabitRow(habit) {
-        const row = document.createElement('div');
-        row.className = 'habit-row';
-
-        // Habit info
-        const habitInfo = document.createElement('div');
-        habitInfo.className = 'habit-info';
-        const categoryInfo = CATEGORIES[habit.category];
-        habitInfo.innerHTML = `
-            <div class="habit-icon">${habit.icon}</div>
-            <div class="habit-details">
-                <div class="habit-name">${habit.name}</div>
-                <div class="habit-goal">
-                    ${categoryInfo.icon} ${categoryInfo.name} | Goal: <span class="habit-goal-value">${habit.goalValue}</span> days
+            const row = document.createElement('div');
+            row.className = 'habit-row';
+            const categoryInfo = CATEGORIES[habit.category];
+            const completed = this.habitManager.getCompletedDays(habit.id);
+            const progress = this.habitManager.getProgress(habit.id);
+            row.innerHTML = `
+                <div class="habit-info">
+                    <div class="habit-icon">${habit.icon}</div>
+                    <div class="habit-details">
+                        <div class="habit-name">${habit.name}</div>
+                        <div class="habit-goal">Goal: <span class="habit-goal-value">${habit.goalValue} days</span></div>
+                    </div>
                 </div>
-            </div>
-        `;
-
-        // Delete button
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'habit-delete';
-        deleteBtn.innerHTML = '×';
-        deleteBtn.addEventListener('click', () => {
-            this.openDeleteModal(habit.id, habit.name);
-        });
-
-        // Days checkboxes
-        const habitDays = document.createElement('div');
-        habitDays.className = 'habit-days';
-
-        const today = new Date().getDate();
-        const currentMonth = new Date().getMonth();
-        const displayMonth = this.habitManager.currentMonth.getMonth();
-
-        for (let day = 1; day <= this.habitManager.daysInMonth; day++) {
-            const checkbox = document.createElement('div');
-            checkbox.className = 'day-checkbox';
-
-            if (this.habitManager.isDayChecked(habit.id, day)) {
-                checkbox.classList.add('checked');
+                <div class="habit-days" id="habit-days-${habit.id}"></div>
+                <div class="habit-stat">
+                    <div class="stat-bar-container">
+                        <div class="stat-bar-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="stat-text">
+                        <span class="stat-percentage">${Math.round(progress)}%</span> (${completed}/${habit.goalValue})
+                    </div>
+                </div>
+                <button class="habit-delete" data-habit-id="${habit.id}">×</button>
+            `;
+            const daysContainer = row.querySelector(`#habit-days-${habit.id}`);
+            for (let day = 1; day <= this.habitManager.daysInMonth; day++) {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'day-checkbox';
+                const isChecked = this.habitManager.isDayChecked(habit.id, day);
+                const isToday = day === new Date().getDate();
+                if (isChecked) checkbox.classList.add('checked');
+                if (isToday) checkbox.classList.add('today');
+                checkbox.addEventListener('click', () => {
+                    this.habitManager.toggleDay(habit.id, day);
+                    this.render();
+                });
+                daysContainer.appendChild(checkbox);
             }
-
-            if (day === today && currentMonth === displayMonth) {
-                checkbox.classList.add('today');
-            }
-
-            checkbox.addEventListener('click', () => {
-                this.habitManager.toggleDay(habit.id, day);
-                checkbox.classList.toggle('checked');
-                this.updateStatBar(habit.id, statBar);
-                this.renderHeader();
-                this.renderCharacter();
+            const deleteBtn = row.querySelector('.habit-delete');
+            deleteBtn.addEventListener('click', () => {
+                this.openDeleteModal(habit.id, habit.name);
             });
-
-            habitDays.appendChild(checkbox);
-        }
-
-        // Stat bar
-        const statBar = this.createStatBar(habit);
-
-        row.appendChild(habitInfo);
-        row.appendChild(deleteBtn);
-        row.appendChild(habitDays);
-        row.appendChild(statBar);
-
-        return row;
-    }
-
-    createStatBar(habit) {
-        const statContainer = document.createElement('div');
-        statContainer.className = 'habit-stat';
-
-        const progress = this.habitManager.getProgress(habit.id);
-        const completed = this.habitManager.getCompletedDays(habit.id);
-
-        statContainer.innerHTML = `
-            <div class="stat-bar-container">
-                <div class="stat-bar-fill" style="width: ${progress}%"></div>
-            </div>
-            <div class="stat-text">
-                <span class="stat-percentage">${Math.round(progress)}%</span>
-                (${completed}/${habit.goalValue})
-            </div>
-        `;
-
-        return statContainer;
-    }
-
-    updateStatBar(habitId, statBar) {
-        const progress = this.habitManager.getProgress(habitId);
-        const completed = this.habitManager.getCompletedDays(habitId);
-        const habit = this.habitManager.habits.find(h => h.id === habitId);
-
-        const fill = statBar.querySelector('.stat-bar-fill');
-        const text = statBar.querySelector('.stat-text');
-
-        fill.style.width = `${progress}%`;
-        text.innerHTML = `
-            <span class="stat-percentage">${Math.round(progress)}%</span>
-            (${completed}/${habit.goalValue})
-        `;
+            this.habitsContainerEl.appendChild(row);
+        });
     }
 
     renderCharacter() {
-        // Update level badge
         this.charLevelBadge.textContent = this.habitManager.getPlayerLevel();
-
-        // Update XP bar
         const totalXP = this.habitManager.getTotalXP();
         const nextLevelXP = this.habitManager.getXPForNextLevel();
         const levelProgress = this.habitManager.getLevelProgress();
-
         this.charXPValue.textContent = `${totalXP} / ${nextLevelXP}`;
         this.charXPBar.style.width = `${levelProgress}%`;
-
-        // Update stats
         this.charStreak.textContent = this.habitManager.getStreak();
         this.charCompleted.textContent = this.habitManager.getTotalCompleted();
         this.charTotalQuests.textContent = this.habitManager.habits.length;
@@ -1201,33 +812,18 @@ class UIManager {
     }
 }
 
-// === Initialize Application ===
 document.addEventListener('DOMContentLoaded', () => {
     const habitManager = new HabitManager();
     const notificationManager = new NotificationManager(habitManager);
     const radarChartManager = new RadarChartManager(habitManager);
     const uiManager = new UIManager(habitManager, notificationManager, radarChartManager);
+    notificationManager.requestPermission().then(() => notificationManager.scheduleAlarms());
+    window.statMaxer = { habitManager, notificationManager, radarChartManager, uiManager };
 
-    // Request permissions and schedule alarms
-    notificationManager.requestPermission().then(() => {
-        notificationManager.scheduleAlarms();
-    });
-
-    // Make managers globally accessible for debugging
-    window.statMaxer = {
-        habitManager,
-        notificationManager,
-        radarChartManager,
-        uiManager
-    };
-
-    // === Mobile Menu Functionality ===
     const initMobileMenu = () => {
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobile-overlay');
-
-        // Show mobile menu button on small screens
         const checkMobileView = () => {
             if (window.innerWidth <= 768) {
                 mobileMenuBtn.style.display = 'block';
@@ -1237,52 +833,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobileOverlay.classList.remove('active');
             }
         };
-
-        // Toggle mobile menu
         const toggleMobileMenu = () => {
             sidebar.classList.toggle('mobile-open');
             mobileOverlay.classList.toggle('active');
         };
-
-        // Close mobile menu
         const closeMobileMenu = () => {
             sidebar.classList.remove('mobile-open');
             mobileOverlay.classList.remove('active');
         };
-
-        // Event listeners
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
         mobileOverlay.addEventListener('click', closeMobileMenu);
-
-        // Close menu when clicking nav items on mobile
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
+        document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    closeMobileMenu();
-                }
+                if (window.innerWidth <= 768) closeMobileMenu();
             });
         });
-
-        // Check on load and resize
         checkMobileView();
         window.addEventListener('resize', checkMobileView);
-
-        // Prevent body scroll when menu is open
         const preventScroll = () => {
-            if (sidebar.classList.contains('mobile-open')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
         };
-
         sidebar.addEventListener('transitionend', preventScroll);
     };
-
-    // Initialize mobile menu
     initMobileMenu();
-
-    console.log('%c⚡ StatMaxer RPG OS Initialized', 'color: #3A86FF; font-size: 16px; font-weight: bold;');
-    console.log('%cLevel up your life! 🎮', 'color: #06FFA5; font-size: 12px;');
 });
